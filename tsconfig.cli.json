@@ -1,0 +1,14 @@
+{
+    "extends": "@sindresorhus/tsconfig",
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src",
+        "moduleResolution": "node16",
+        "module": "node16",
+        "sourceMap": true,
+        "jsx": "react"
+    },
+    "include": [
+        "src/app"
+    ]
+}

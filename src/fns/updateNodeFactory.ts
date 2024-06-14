@@ -1,21 +1,18 @@
-'use server'
 
-import { authenticatedServerAction } from "../authenticatedServerAction"
-import { AnyNodeTypeMap, NodeShape, NodeState } from "../defines/NodeType"
-import { NodeKey } from "../defines/typesv2"
-import { neo4jAction } from "../neo4jAction"
-import { neo4jDriver } from "../client"
-import { EagerResult, Integer, Node } from "neo4j-driver"
-import { BasicErr, Ok } from "../utilities/Result"
-import { TypeOf } from "zod"
 
+import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
+import { AnyNodeTypeMap, NodeShape, NodeState } from "../types/NodeType"
+import { neo4jAction } from "../clients/neo4j"
+import { NodeKey } from "../types/types"
+import { BasicErr, Ok } from "../types/Result"
 
 
 export const updateNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap
 >(
+    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap
-) => authenticatedServerAction(neo4jAction(async <
+) => neo4jAction(async <
     NodeType extends NodeTypeMap[keyof NodeTypeMap]['type']
 >(
     nodeKey: NodeKey<NodeTypeMap, NodeType>,
@@ -43,4 +40,4 @@ export const updateNodeFactory = <
         message: `Failed to update node of type ${nodeKey.nodeType} with id ${nodeKey.nodeId}`
     })
     return Ok(node.get('node').properties)
-}))
+})

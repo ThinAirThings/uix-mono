@@ -1,7 +1,6 @@
-import { TypeOf } from 'zod'
-import neo4j, { Driver, EagerResult, Integer, Neo4jError, Node, Relationship } from 'neo4j-driver';
-import { AnyNodeTypeSet, GenericNodeTypeSet, NodeTypeMap } from './NodeType';
-import { createNodeFactory } from '../fns/createNodeFactory';
+import { GenericNodeTypeSet, NodeTypeMap } from './NodeType.js';
+import { AnyNodeTypeSet } from './NodeType.js';
+
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
@@ -29,7 +28,7 @@ export class GraphType<
         public type: Type,
         public nodeTypeSet: NodeTypeSet,
         public nodeTypeMap: NodeTypeMap<NodeTypeSet> = Object.fromEntries(
-            this.nodeTypeSet.map(nodeType => [nodeType.type, nodeType])
+            nodeTypeSet.map(nodeType => [nodeType.type, nodeType])
         ),
     ) { }
 

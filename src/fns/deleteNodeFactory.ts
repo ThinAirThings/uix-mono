@@ -1,18 +1,15 @@
-'use server'
-
-import { EagerResult } from "neo4j-driver"
-import { neo4jDriver } from "../client"
-import { authenticatedServerAction } from "../authenticatedServerAction"
-import { neo4jAction } from "../neo4jAction"
-import { AnyNodeTypeMap } from "../defines/NodeType"
-import { NodeKey } from "../defines/typesv2"
-import { BasicErr, Ok } from "../utilities/Result"
+import { Driver, EagerResult } from "neo4j-driver"
+import { neo4jAction } from "../clients/neo4j"
+import { AnyNodeTypeMap } from "../types/NodeType"
+import { NodeKey } from "../types/types"
+import { BasicErr, Ok } from "../types/Result"
 
 export const deleteNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
+    neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap
-) => authenticatedServerAction(neo4jAction(async (
+) => neo4jAction(async (
     nodeKey: NodeKey<NodeTypeMap, keyof NodeTypeMap>
 ) => {
     const result = await neo4jDriver.executeQuery<EagerResult<{
@@ -34,5 +31,5 @@ export const deleteNodeFactory = <
         parentNodeId: result.records[0].get('parentNodeId'),
         parentNodeType: result.records[0].get('parentNodeType')
     })
-}))
+})
 
