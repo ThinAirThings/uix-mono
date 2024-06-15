@@ -9,7 +9,7 @@ export type UixConfig<
 > = {
     outdir: string,
     graph: GraphType<Type, NodeTypeSet>
-    pathToConfig?: string,
+    pathToConfig: string,
     neo4jConfig: {
         uri: string,
         username: string,

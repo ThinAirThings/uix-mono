@@ -42,7 +42,7 @@ export class NodeType<
     Type extends Capitalize<string> = Capitalize<string>,
     StateSchema extends AnyZodObject = AnyZodObject,
     UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
-    VectorIndexes extends (readonly (keyof TypeOf<StateSchema>)[]) | [] = [],
+    PropertyVectors extends (readonly (keyof TypeOf<StateSchema>)[]) | [] = [],
     RelationshipTypeSet extends AnyRelationshipTypeSet | [] = []
 > {
     //      ___             _               _           
@@ -53,7 +53,7 @@ export class NodeType<
         public type: Type,
         public stateSchema: StateSchema,
         public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
-        public vectorIndexes: VectorIndexes = [] as VectorIndexes,
+        public propertyVectors: PropertyVectors = [] as PropertyVectors,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
         public shapeSchema = stateSchema.extend({
             nodeId: z.string(),
@@ -74,11 +74,26 @@ export class NodeType<
         return new NodeType(
             this.type,
             this.stateSchema,
-            [...indexes, 'nodeId']
+            [...indexes, 'nodeId'],
+            this.propertyVectors,
+            this.relationshipTypeSet
         );
     }
+    defineNodeVector() {
 
-    // defineVectorProperty<>
+    }
+    // You might want to embed the property keys too
+    definePropertyVector<PropertyKey extends readonly (keyof TypeOf<StateSchema>)[]>(
+        propertyKeys: PropertyKey
+    ) {
+        return new NodeType(
+            this.type,
+            this.stateSchema,
+            this.uniqueIndexes,
+            [...this.propertyVectors, ...propertyKeys],
+            this.relationshipTypeSet
+        );
+    }
     //  ___     _      _   _             _    _        ___      _ _    _            
     // | _ \___| |__ _| |_(_)___ _ _  __| |_ (_)_ __  | _ )_  _(_) |__| |___ _ _ ___
     // |   / -_) / _` |  _| / _ \ ' \(_-< ' \| | '_ \ | _ \ || | | / _` / -_) '_(_-<
@@ -93,7 +108,7 @@ export class NodeType<
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
-            this.vectorIndexes,
+            this.propertyVectors,
             [
                 ...(this.relationshipTypeSet),
                 new RelationshipType(
@@ -114,7 +129,7 @@ export class NodeType<
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
-            this.vectorIndexes,
+            this.propertyVectors,
             [
                 ...(this.relationshipTypeSet),
                 new RelationshipType(
@@ -137,7 +152,7 @@ export class NodeType<
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
-            this.vectorIndexes,
+            this.propertyVectors,
             [
                 ...(this.relationshipTypeSet),
                 new RelationshipType(

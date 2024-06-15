@@ -40,6 +40,9 @@ export const createNodeFactory = <
         WITH childNode
         MATCH (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeKey.nodeId})
         MERGE (childNode)-[:CHILD_TO]->(parentNode)
+        // BREAK //
+        MERGE (vectorNode:${childNodeType}Vector)-[:VECTOR_TO]->(childNode)
+        //////////
         RETURN childNode
     `, {
         parentNodeKey,

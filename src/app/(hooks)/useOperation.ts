@@ -19,16 +19,18 @@ export const useOperation = <
     operationKey,
     tryOp,
     catchOp,
+    finallyOp,
     render,
     dependencies
 }: {
     operationKey: OperationKey
     tryOp: (dependencies: NonNullableElements<Dependencies>) => Promise<T> | T,
-    catchOp: (error: any) => Result<never, ErrType<ErrorType, ErrorInfo>>
+    catchOp: (error: any, dependencies: NonNullableElements<Dependencies>) => Result<never, ErrType<ErrorType, ErrorInfo>>,
+    finallyOp?: (dependencies: NonNullableElements<Dependencies>) => void,
     render: {
-        success: FC
-        pending: FC
-        error: FC
+        Success: FC<{ data: T, dependencies: Dependencies }>
+        Pending: FC<{ dependencies: Dependencies }>
+        Error: FC<{ error: ErrType<ErrorType, ErrorInfo>, dependencies: Dependencies }>
     }
     dependencies: Dependencies
 }) => {
@@ -37,31 +39,43 @@ export const useOperation = <
         queryFn: dependencies.length === 0
             ? async () => await tryCatch({
                 try: () => tryOp(dependencies as NonNullableElements<Dependencies>),
-                catch: catchOp
+                catch: (error) => catchOp(error, dependencies as NonNullableElements<Dependencies>),
+                finally: () => finallyOp?.(dependencies as NonNullableElements<Dependencies>)
             })
             : dependencies.every(dependency => (!!dependency))
                 ? async () => await tryCatch({
                     try: () => tryOp(dependencies as NonNullableElements<Dependencies>),
-                    catch: catchOp
+                    catch: (error) => catchOp(error, dependencies as NonNullableElements<Dependencies>),
+                    finally: () => finallyOp?.(dependencies as NonNullableElements<Dependencies>)
                 })
                 : skipToken
     })
     useEffect(() => {
         if (!result) {
             applicationStore.setState(({ outputMap }) => {
-                outputMap.set(operationKey, render.pending)
+                outputMap.set(operationKey, {
+                    Component: () => render.Pending({ dependencies }),
+                    operationState: 'pending'
+                })
             })
             return
         }
-        if (result.error) {
+        const { error, data } = result
+        if (error) {
             applicationStore.setState(({ outputMap }) => {
-                outputMap.set(operationKey, render.error)
+                outputMap.set(operationKey, {
+                    Component: () => render.Error({ error, dependencies }),
+                    operationState: 'error'
+                })
             })
             return
         }
-        if (result.data) {
+        if (data) {
             applicationStore.setState(({ outputMap }) => {
-                outputMap.set(operationKey, render.success)
+                outputMap.set(operationKey, {
+                    Component: () => render.Success({ data, dependencies }),
+                    operationState: 'success'
+                })
             })
         }
     }, [result])

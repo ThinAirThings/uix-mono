@@ -2,6 +2,7 @@
 import Pastel from 'pastel';
 import { enableMapSet } from 'immer';
 
+
 enableMapSet()
 const app = new Pastel({
     importMeta: import.meta,

@@ -13,7 +13,6 @@ export type Result<T, E extends AnyErrType> = {
     error: E
 }
 
-
 //  _____          ___      _      _    
 // |_   _| _ _  _ / __|__ _| |_ __| |_  
 //   | || '_| || | (__/ _` |  _/ _| ' \ 
@@ -25,12 +24,15 @@ export const tryCatch = async <
     ErrorInfo extends Record<string, any>,
 >(opts: {
     try: () => Promise<T> | T,
-    catch: (error: any) => Result<never, ErrType<ErrorType, ErrorInfo>>
+    catch: (error: any) => Result<never, ErrType<ErrorType, ErrorInfo>>,
+    finally?: () => void
 }): Promise<Result<T, ErrType<ErrorType, ErrorInfo>>> => {
     try {
         return Ok(await opts.try())
     } catch (error) {
         return opts.catch(error)
+    } finally {
+        opts.finally?.()
     }
 }
 
@@ -76,8 +78,9 @@ export enum UixErrCode {
     UIX_CONFIG_NOT_FOUND = 'UIX_CONFIG_NOT_FOUND',
     CODE_GENERATION_FAILED = 'CODE_GENERATION_FAILED',
     // Index Errors
+    CREATE_NULL_NODE_FAILED = 'CREATE_NULL_NODE_FAILED',
     CREATE_UNIQUE_INDEX_FAILED = 'CREATE_UNIQUE_INDEX_FAILED',
-    CREATE_VECTOR_INDEX_FAILED = 'CREATE_VECTOR_INDEX_FAILED',
+    CREATE_PROPERTY_VECTOR_FAILED = 'CREATE_PROPERTY_VECTOR_FAILED',
     // CRUD Errors
     CREATE_NODE_FAILED = 'CREATE_NODE_FAILED',
     DELETE_NODE_FAILED = 'DELETE_NODE_FAILED',

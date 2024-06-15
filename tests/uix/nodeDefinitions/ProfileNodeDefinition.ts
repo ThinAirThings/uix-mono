@@ -8,3 +8,4 @@ export const ProfileNodeDefinition = defineNodeType('Profile', z.object({
     state: z.string().optional(),
     skills: z.array(z.string()).optional()
 }))
+    .definePropertyVector(['aboutMe'])
