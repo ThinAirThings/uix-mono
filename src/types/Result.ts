@@ -24,7 +24,7 @@ export const tryCatch = async <
     ErrorType extends string,
     ErrorInfo extends Record<string, any>,
 >(opts: {
-    try: () => T,
+    try: () => Promise<T> | T,
     catch: (error: any) => Result<never, ErrType<ErrorType, ErrorInfo>>
 }): Promise<Result<T, ErrType<ErrorType, ErrorInfo>>> => {
     try {
@@ -71,12 +71,36 @@ export const Err = <
     }
 }
 
-
-
-export const BasicErr = (error: {
+export enum UixErrCode {
+    // Application Errors
+    UIX_CONFIG_NOT_FOUND = 'UIX_CONFIG_NOT_FOUND',
+    CODE_GENERATION_FAILED = 'CODE_GENERATION_FAILED',
+    // Index Errors
+    CREATE_UNIQUE_INDEX_FAILED = 'CREATE_UNIQUE_INDEX_FAILED',
+    CREATE_VECTOR_INDEX_FAILED = 'CREATE_VECTOR_INDEX_FAILED',
+    // CRUD Errors
+    CREATE_NODE_FAILED = 'CREATE_NODE_FAILED',
+    DELETE_NODE_FAILED = 'DELETE_NODE_FAILED',
+    UPDATE_NODE_FAILED = 'UPDATE_NODE_FAILED',
+    GET_NODE_BY_KEY_FAILED = 'GET_NODE_BY_KEY_FAILED',
+}
+export const UixErr = <
+    Code extends UixErrCode,
+    Data extends Record<string, any> | undefined = undefined,
+>({
+    message,
+    code,
+    data
+}: {
     message: string
-    code: string
-}) => Err('BasicErr', error)
+    code: Code
+    data?: Data
+}) => Err('UixErr', {
+    message,
+    code,
+    data: data as Data extends Record<string, any> ? Data : null
+})
 
+export const TestErr = (error: Error) => Err('TestErr', error)
 
 export const Neo4jErr = (error: Neo4jError) => Err('Neo4jErr', error)

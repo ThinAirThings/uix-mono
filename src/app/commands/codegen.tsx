@@ -1,6 +1,6 @@
 
-import React, { FC, createContext, useContext } from 'react';
-import { Text, Box } from 'ink';
+import React, { FC, createContext, useContext, ReactNode } from 'react';
+import { Text, Box, useApp } from 'ink';
 import { z, TypeOf } from 'zod';
 import { Loading } from '../(components)/Loading';
 import { Providers } from '../(components)/Providers';
@@ -14,6 +14,10 @@ import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { createImmerState } from '../(utilities)/createImmerState';
+import { useStore } from 'zustand';
+import { useApplicationStore } from '../(stores)/applicationStore';
+import { tryCatch, UixErr, UixErrCode } from '../../types/Result';
+import { useOperation } from '../(hooks)/useOperation';
 
 export const options = z.object({
     pathToConfig: z.string().transform(relativePath => {
@@ -36,20 +40,42 @@ const Codegen: FC<{
 }) => Providers({
     Command: () => {
         // Get config
-        const { data: uixConfig, error: uixConfigError } = useQuery({
-            queryKey: ['uixConfig'],
-            queryFn: async () => {
+        // const { data: uixConfig, error: uixConfigError } = useQuery({
+        //     queryKey: ['uixConfig'],
+        //     queryFn: async () => {
+        //         const {
+        //             default: config
+        //         } = require(options.pathToConfig, import.meta.url) as {
+        //             default: GenericUixConfig
+        //         }
+        //         return config
+        //     }
+        // })
+        const uixConfig = useOperation({
+            dependencies: [],
+            operationKey: 'uixConfig',
+            tryOp: async () => {
                 const {
                     default: config
                 } = require(options.pathToConfig, import.meta.url) as {
                     default: GenericUixConfig
                 }
                 return config
+            },
+            catchOp: (error: Error) => UixErr({
+                code: UixErrCode.UIX_CONFIG_NOT_FOUND,
+                message: `Uix config not found: ${error.message}`
+            }),
+            render: {
+                success: () => <Text>✅ Uix config found</Text>,
+                pending: () => <Loading text="Finding config..." />,
+                error: () => <Text color="red">Error finding config file</Text>
             }
         })
-        const { error: writeFunctionModuleError } = useQuery({
-            queryKey: ['writeFunctionModule'],
-            queryFn: uixConfig ? async () => {
+        const codeGeneration = useOperation({
+            dependencies: [uixConfig],
+            operationKey: 'codeGeneration',
+            tryOp: async ([uixConfig]) => {
                 const pathToFiles = path.join(process.cwd(), uixConfig.outdir)
                 await mkdir(pathToFiles, { recursive: true })
                 await writeFile(
@@ -57,11 +83,42 @@ const Codegen: FC<{
                     functionModuleTemplate(uixConfig)
                 )
                 return true
-            } : skipToken,
+            },
+            catchOp: (error: Error) => UixErr({
+                code: UixErrCode.CODE_GENERATION_FAILED,
+                message: `Code generation failed: ${error.message}`
+            }),
+            render: {
+                success: () => <Text>✅ Code Generated @{uixConfig?.outdir}: Fully-typed operations</Text>,
+                pending: () => <Loading text="Generating code..." />,
+                error: () => <Text color="red">Error generating code</Text>
+            }
         })
-        if (uixConfigError) return <Text color="red">Error finding config file: {uixConfigError?.message}</Text>
-        if (writeFunctionModuleError) return <Text color="red">Error writing function module: {writeFunctionModuleError?.message}</Text>
-        if (!uixConfig) return <Loading text="Finding config..." />
+        // const { data: codeGenerationResult } = useQuery({
+        //     queryKey: ['codeGeneration'],
+        //     queryFn: uixConfig ? async () => {
+        //         return await tryCatch({
+        //             try: async () => {
+        //                 const pathToFiles = path.join(process.cwd(), uixConfig.outdir)
+        //                 await mkdir(pathToFiles, { recursive: true })
+        //                 await writeFile(
+        //                     path.join(pathToFiles, 'functionModule.ts'),
+        //                     functionModuleTemplate(uixConfig)
+        //                 )
+        //                 return true
+        //             },
+        //             catch: (error: Error) => UixErr({
+        //                 code: UixErrCode.CODE_GENERATION_FAILED,
+        //                 message: `Code generation failed: ${error.message}`
+        //             })
+        //         })
+        //     } : skipToken,
+        // })
+        const outputMap = useApplicationStore(store => store.outputMap)
+
+        // if (uixConfigError) return <Text color="red">Error finding config file: {uixConfigError?.message}</Text>
+        // if (writeFunctionModuleError) return <Text color="red">Error writing function module: {writeFunctionModuleError?.message}</Text>
+        // if (!uixConfig) return <Loading text="Finding config..." />
         codegenStore.setState(({ uixConfig }))
 
         return (<>
@@ -70,12 +127,14 @@ const Codegen: FC<{
                     <Gradient name='vice'>
                         <BigText text="Uix" font='simple' />
                     </Gradient>
-                    <Text color='yellowBright'>by Thin Air</Text>
+                    <Text color='yellowBright'>by Thin Air - v.</Text>
                 </Box>
                 <Text>✅ Code Generated @{uixConfig?.outdir}: Fully-typed operations</Text>
             </Box>
+            {/* Outputs */}
+            {[...outputMap].map(([key, Output]) => <Output key={key} />)}
             {/* Seed Database */}
-            <SeedNeo4j />
+            {/* <SeedNeo4j /> */}
         </>)
     }
 })

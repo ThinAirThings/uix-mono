@@ -2,7 +2,7 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { neo4jAction } from "../clients/neo4j";
 import { NodeKey } from "../types/types";
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType";
-import { BasicErr, Ok } from "../types/Result";
+import { UixErr, Ok, UixErrCode } from "../types/Result";
 
 
 
@@ -23,8 +23,8 @@ export const getNodeByKeyFactory = <
         MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 
         RETURN node   
     `, { nodeId: nodeKey.nodeId })
-    if (!getNodeResult.records[0]) return BasicErr({
-        code: 'NodeNotFound',
+    if (!getNodeResult.records[0]) return UixErr({
+        code: UixErrCode.GET_NODE_BY_KEY_FAILED,
         message: `Failed to find node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`
     })
     return Ok(getNodeResult.records[0].get('node').properties)

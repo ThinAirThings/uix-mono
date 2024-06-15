@@ -8,11 +8,12 @@ import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } 
 //                      |__/        |__/|_|           
 type UnwrapZodOptional<T extends ZodTypeAny> = T extends ZodOptional<infer U> ? U : T;
 type UnwrapZodDefault<T extends ZodTypeAny> = T extends ZodDefault<infer U> ? U : T;
-export type AnyNodeType = NodeType<any, any, any, any>
+export type AnyNodeType = NodeType<any, any, any, any, any>
 export type GenericNodeType = NodeType<
     Capitalize<string>,
     AnyZodObject,
     ['nodeId', ...readonly Capitalize<string>[]],
+    [],
     GenericRelationshipTypeSet
 >
 export type GenericNodeTypeSet = readonly GenericNodeType[]
@@ -41,17 +42,18 @@ export class NodeType<
     Type extends Capitalize<string> = Capitalize<string>,
     StateSchema extends AnyZodObject = AnyZodObject,
     UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
+    VectorIndexes extends (readonly (keyof TypeOf<StateSchema>)[]) | [] = [],
     RelationshipTypeSet extends AnyRelationshipTypeSet | [] = []
 > {
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
     //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|
     //     \___\___/_||_/__/\__|_|  \_,_\__|\__\___/_|  
-
     constructor(
         public type: Type,
         public stateSchema: StateSchema,
         public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
+        public vectorIndexes: VectorIndexes = [] as VectorIndexes,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
         public shapeSchema = stateSchema.extend({
             nodeId: z.string(),
@@ -60,10 +62,11 @@ export class NodeType<
             updatedAt: z.string()
         })
     ) { }
-    //  ___      _ _    _            
-    // | _ )_  _(_) |__| |___ _ _ ___
-    // | _ \ || | | / _` / -_) '_(_-<
-    // |___/\_,_|_|_\__,_\___|_| /__/
+
+    //  _  _         _       ___     _               _             
+    // | \| |___  __| |___  | __|_ _| |_ ___ _ _  __(_)___ _ _  ___
+    // | .` / _ \/ _` / -_) | _|\ \ /  _/ -_) ' \(_-< / _ \ ' \(_-<
+    // |_|\_\___/\__,_\___| |___/_\_\\__\___|_||_/__/_\___/_||_/__/
     // Note, you could change this to 'uniqueIndex' and declare these 1 by 1. This would allow you to easily constrain duplicates
     defineUniqueIndexes<UniqueIndexes extends readonly (keyof TypeOf<StateSchema>)[]>(
         indexes: UniqueIndexes
@@ -74,6 +77,13 @@ export class NodeType<
             [...indexes, 'nodeId']
         );
     }
+
+    // defineVectorProperty<>
+    //  ___     _      _   _             _    _        ___      _ _    _            
+    // | _ \___| |__ _| |_(_)___ _ _  __| |_ (_)_ __  | _ )_  _(_) |__| |___ _ _ ___
+    // |   / -_) / _` |  _| / _ \ ' \(_-< ' \| | '_ \ | _ \ || | | / _` / -_) '_(_-<
+    // |_|_\___|_\__,_|\__|_\___/_||_/__/_||_|_| .__/ |___/\_,_|_|_\__,_\___|_| /__/
+    //                                         |_|                                  
     defineUniqueRelationship<
         ToNodeType extends AnyNodeType
     >(
@@ -83,6 +93,7 @@ export class NodeType<
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
+            this.vectorIndexes,
             [
                 ...(this.relationshipTypeSet),
                 new RelationshipType(
@@ -103,6 +114,7 @@ export class NodeType<
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
+            this.vectorIndexes,
             [
                 ...(this.relationshipTypeSet),
                 new RelationshipType(
@@ -125,6 +137,7 @@ export class NodeType<
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
+            this.vectorIndexes,
             [
                 ...(this.relationshipTypeSet),
                 new RelationshipType(

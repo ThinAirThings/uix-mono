@@ -4,7 +4,7 @@ import { TypeOf } from "zod"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { NodeKey, ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
-import { BasicErr, Ok } from "../types/Result"
+import { UixErr, Ok, UixErrCode } from "../types/Result"
 
 export const createNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
@@ -45,8 +45,8 @@ export const createNodeFactory = <
         parentNodeKey,
         childNode: newNodeStructure
     }).then(res => res.records[0])
-    if (!node) return BasicErr({
-        code: 'NodeCreateFailed',
+    if (!node) return UixErr({
+        code: UixErrCode.CREATE_NODE_FAILED,
         message: `Failed to create node of type ${childNodeType} with parent ${parentNodeKey.nodeType as string} ${parentNodeKey.nodeId}`
     })
     return Ok(node.get('childNode').properties)

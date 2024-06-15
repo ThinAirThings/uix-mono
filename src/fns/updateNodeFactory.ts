@@ -4,7 +4,7 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { AnyNodeTypeMap, NodeShape, NodeState } from "../types/NodeType"
 import { neo4jAction } from "../clients/neo4j"
 import { NodeKey } from "../types/types"
-import { BasicErr, Ok } from "../types/Result"
+import { UixErr, Ok, UixErrCode } from "../types/Result"
 
 
 export const updateNodeFactory = <
@@ -35,8 +35,8 @@ export const updateNodeFactory = <
             updatedAt: new Date().toISOString(),
         }
     }).then(res => res.records[0])
-    if (!node) return BasicErr({
-        code: 'NodeUpdateFailed',
+    if (!node) return UixErr({
+        code: UixErrCode.UPDATE_NODE_FAILED,
         message: `Failed to update node of type ${nodeKey.nodeType} with id ${nodeKey.nodeId}`
     })
     return Ok(node.get('node').properties)
