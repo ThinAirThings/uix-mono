@@ -1,5 +1,5 @@
 
-import { ReactNode, FC, useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { ErrType, Result, tryCatch } from '../../types/Result'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { applicationStore } from '../(stores)/applicationStore'

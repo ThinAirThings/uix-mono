@@ -1,6 +1,6 @@
 import neo4j from 'neo4j-driver';
 import { Neo4jError } from "neo4j-driver"
-import { AnyResult, Neo4jErr } from '../types/Result';
+import { AnyResult, Err } from '../types/Result';
 
 
 export const createNeo4jClient = (config: {
@@ -19,8 +19,10 @@ export const neo4jAction = <
 ) => {
         try {
             return await fn(...args)
-        } catch (_e) {
-            const e = _e as Neo4jError
+        } catch (e) {
+            if (!(e instanceof Neo4jError)) throw e
             return Neo4jErr(e)
         }
     }
+
+export const Neo4jErr = (error: Neo4jError) => Err('Neo4jErr', error)

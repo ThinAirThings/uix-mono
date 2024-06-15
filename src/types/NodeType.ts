@@ -8,13 +8,14 @@ import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } 
 //                      |__/        |__/|_|           
 type UnwrapZodOptional<T extends ZodTypeAny> = T extends ZodOptional<infer U> ? U : T;
 type UnwrapZodDefault<T extends ZodTypeAny> = T extends ZodDefault<infer U> ? U : T;
-export type AnyNodeType = NodeType<any, any, any, any, any>
+export type AnyNodeType = NodeType<any, any, any, any, any, any>
 export type GenericNodeType = NodeType<
     Capitalize<string>,
     AnyZodObject,
     ['nodeId', ...readonly Capitalize<string>[]],
     [],
-    GenericRelationshipTypeSet
+    GenericRelationshipTypeSet,
+    string
 >
 export type GenericNodeTypeSet = readonly GenericNodeType[]
 export type AnyNodeTypeSet = readonly AnyNodeType[]
@@ -34,6 +35,9 @@ export type NodeShape<T extends AnyNodeType> = NodeState<T> & {
     createdAt: string
     updatedAt: string
 }
+type StringProperties<T extends AnyZodObject> = {
+    [K in keyof TypeOf<T>]: NonNullable<TypeOf<T>[K]> extends string ? K : never
+}[keyof TypeOf<T>]
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
@@ -42,8 +46,9 @@ export class NodeType<
     Type extends Capitalize<string> = Capitalize<string>,
     StateSchema extends AnyZodObject = AnyZodObject,
     UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
-    PropertyVectors extends (readonly (keyof TypeOf<StateSchema>)[]) | [] = [],
-    RelationshipTypeSet extends AnyRelationshipTypeSet | [] = []
+    PropertyVectors extends (readonly (StringProperties<StateSchema>)[]) | [] = [],
+    RelationshipTypeSet extends AnyRelationshipTypeSet | [] = [],
+    NodeTypeVectorDescription extends string | undefined = undefined,
 > {
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
@@ -55,6 +60,7 @@ export class NodeType<
         public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
         public propertyVectors: PropertyVectors = [] as PropertyVectors,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
+        public nodeTypeVectorDescription: NodeTypeVectorDescription = '' as NodeTypeVectorDescription,
         public shapeSchema = stateSchema.extend({
             nodeId: z.string(),
             nodeType: z.literal(type),
@@ -76,14 +82,24 @@ export class NodeType<
             this.stateSchema,
             [...indexes, 'nodeId'],
             this.propertyVectors,
-            this.relationshipTypeSet
+            this.relationshipTypeSet,
+            this.nodeTypeVectorDescription
         );
     }
-    defineNodeVector() {
-
+    defineNodeTypeVectorDescription(
+        nodeTypeVectorDescription: string,
+    ) {
+        return new NodeType(
+            this.type,
+            this.stateSchema,
+            this.uniqueIndexes,
+            this.propertyVectors,
+            this.relationshipTypeSet,
+            nodeTypeVectorDescription
+        );
     }
     // You might want to embed the property keys too
-    definePropertyVector<PropertyKey extends readonly (keyof TypeOf<StateSchema>)[]>(
+    definePropertyVector<PropertyKey extends readonly (StringProperties<StateSchema>)[]>(
         propertyKeys: PropertyKey
     ) {
         return new NodeType(
@@ -91,7 +107,8 @@ export class NodeType<
             this.stateSchema,
             this.uniqueIndexes,
             [...this.propertyVectors, ...propertyKeys],
-            this.relationshipTypeSet
+            this.relationshipTypeSet,
+            this.nodeTypeVectorDescription
         );
     }
     //  ___     _      _   _             _    _        ___      _ _    _            
@@ -117,7 +134,8 @@ export class NodeType<
                     `UNIQUE_TO` as Uppercase<string>,
                     toNodeType,
                 )
-            ]
+            ],
+            this.nodeTypeVectorDescription
         );
     }
     defineSetRelationship<
@@ -138,7 +156,8 @@ export class NodeType<
                     `CHILD_TO` as Uppercase<string>,
                     toNodeType,
                 )
-            ]
+            ],
+            this.nodeTypeVectorDescription
         );
     }
     defineEdgeRelationship<
@@ -161,7 +180,8 @@ export class NodeType<
                     relationshipType,
                     toNodeType,
                 )
-            ]
+            ],
+            this.nodeTypeVectorDescription
         );
     }
 }

@@ -89,7 +89,7 @@ const Codegen: FC<{
                     <Gradient name='vice'>
                         <BigText text="Uix" font='simple' />
                     </Gradient>
-                    <Text color='yellowBright'>by Thin Air - v.</Text>
+                    <Text color='yellowBright'>by Thin Air</Text>
                 </Box>
             </Box>
             {/* Outputs */}

@@ -106,4 +106,3 @@ export const UixErr = <
 
 export const TestErr = (error: Error) => Err('TestErr', error)
 
-export const Neo4jErr = (error: Neo4jError) => Err('Neo4jErr', error)
