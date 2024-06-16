@@ -3,10 +3,24 @@ import { v4 as uuid } from 'uuid'
 import { TypeOf } from "zod"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
-import { NodeKey, ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
-import { UixErr, Ok, UixErrCode } from "../types/Result"
+import { GenericNodeKey, NodeKey, ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
+import { UixErr, Ok, UixErrCode, AnyErrType } from "../types/Result"
+import { Action } from "../types/Action"
 
-export const createNodeFactory = <
+
+export type GenericCreateNodeAction = Action<
+    [GenericNodeKey, Capitalize<string>, Record<string, any>, string?],
+    Record<string, any>,
+    AnyErrType
+>
+
+/**
+ * Factory for creating an action to create a node in the database
+ * @param neo4jDriver The neo4j driver to use
+ * @param nodeTypeMap The node type map to use
+ * @returns The create node action
+ */
+export const createNodeFactory = async <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
     neo4jDriver: Driver,
@@ -30,7 +44,6 @@ export const createNodeFactory = <
         updatedAt: new Date().toISOString()
     })
     console.log("Creating", parentNodeKey, childNodeType, newNodeStructure)
-
     const node = await neo4jDriver.executeQuery<EagerResult<{
         childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>
     }>>(/* cypher */ `
@@ -52,5 +65,7 @@ export const createNodeFactory = <
         code: UixErrCode.CREATE_NODE_FAILED,
         message: `Failed to create node of type ${childNodeType} with parent ${parentNodeKey.nodeType as string} ${parentNodeKey.nodeId}`
     })
+    // Triggers
+
     return Ok(node.get('childNode').properties)
 })

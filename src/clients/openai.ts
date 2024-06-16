@@ -1,34 +1,37 @@
 import OpenAI, { OpenAIError } from 'openai';
-import { Err } from '../types/Result';
+import { AnyErrType, Err, ErrType, Result } from '../types/Result';
+import { Action } from '../types/Action';
 
 
 
 export const createOpenAIClient = (config: {
     apiKey: string
-}) => {
-    return new OpenAI({
-        apiKey: config.apiKey
-    })
-}
-
-const uixAction = () => {
-
-}
+}) => new OpenAI({
+    apiKey: config.apiKey
+})
 
 export const openAIAction = <
     Input extends any[],
-    Output extends any
+    T,
+    PrevErrType extends AnyErrType
 >(
-    fn: (...args: Input) => Promise<Output>
+    fn: Action<Input, T, PrevErrType>
 ) => async (
     ...args: Input
-) => {
+): Promise<
+    Result<T,
+        | PrevErrType
+        | ErrType<'OpenAIError', InstanceType<typeof OpenAIError>>
+    >
+> => {
         try {
             return await fn(...args)
         } catch (e) {
             if (!(e instanceof OpenAIError)) throw e
-            return e
+            return OpenAIErr(e)
         }
     }
 
-export const OpenAIErr = (error: typeof OpenAIError) => Err('OpenAIError', error)
+export const OpenAIErr = (
+    error: InstanceType<typeof OpenAIError>
+) => Err('OpenAIError', error)

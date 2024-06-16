@@ -21,7 +21,6 @@ export const Error: FC<{
                         <Text wrap='wrap'>  Message: {error.message}</Text>
                     </Box>
                 </>}
-
             </Box>
         )
     }

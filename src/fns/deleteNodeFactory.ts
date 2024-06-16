@@ -4,6 +4,15 @@ import { AnyNodeTypeMap } from "../types/NodeType"
 import { NodeKey } from "../types/types"
 import { UixErr, Ok, UixErrCode } from "../types/Result"
 
+
+
+
+/**
+ * Factory for creating an action to delete a node in the database
+ * @param neo4jDriver The neo4j driver to use
+ * @param nodeTypeMap The node type map to use
+ * @returns The delete node action
+ */
 export const deleteNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(

@@ -1,22 +1,34 @@
 import neo4j from 'neo4j-driver';
 import { Neo4jError } from "neo4j-driver"
-import { AnyResult, Err } from '../types/Result';
+import { AnyErrType, Err, ErrType, Result } from '../types/Result';
+import { Action } from '../types/Action';
 
 
 export const createNeo4jClient = (config: {
     uri: string
     username: string
-    password: string
-}) => neo4j.driver(config.uri, neo4j.auth.basic(config.username, config.password))
+    password: string,
+}, options?: Parameters<typeof neo4j.driver>[2]) => neo4j.driver(
+    config.uri,
+    neo4j.auth.basic(config.username, config.password),
+    options
+)
 
+export const Neo4jErr = (error: Neo4jError) => Err('Neo4jErr', error)
 export const neo4jAction = <
     Input extends any[],
-    Output extends AnyResult
+    T,
+    PrevErrType extends AnyErrType,
 >(
-    fn: (...args: Input) => Promise<Output>
+    fn: Action<Input, T, PrevErrType>
 ) => async (
     ...args: Input
-) => {
+): Promise<
+    Result<T,
+        | PrevErrType
+        | ErrType<'Neo4jErr', Neo4jError>
+    >
+> => {
         try {
             return await fn(...args)
         } catch (e) {
@@ -24,5 +36,3 @@ export const neo4jAction = <
             return Neo4jErr(e)
         }
     }
-
-export const Neo4jErr = (error: Neo4jError) => Err('Neo4jErr', error)

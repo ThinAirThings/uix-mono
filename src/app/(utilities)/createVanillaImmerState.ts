@@ -5,6 +5,7 @@ import { Draft } from "immer";
 
 type ImmerSet<T> = (nextStateOrUpdater: T | Partial<T> | ((state: Draft<T>) => void), shouldReplace?: boolean | undefined) => void
 
+// NOTE!: This function is irrelevant. It's only needed when you don't want to bundle React
 export const createVanillaImmerState = <
     T,
     Fns extends Record<

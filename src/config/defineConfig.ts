@@ -15,6 +15,9 @@ export type UixConfig<
         username: string,
         password: string
     }
+    openaiConfig: {
+        apiKey: string
+    }
 }
 export type GenericUixConfig = UixConfig<
     Capitalize<string>,
@@ -40,6 +43,7 @@ export const defineConfig = <
             options.type,
             options.nodeTypeSet,
         ),
+        openaiConfig: options.openaiConfig,
         pathToConfig: getCallerFile(),
         neo4jConfig: options.neo4jConfig
     }

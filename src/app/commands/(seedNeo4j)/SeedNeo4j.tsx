@@ -4,14 +4,13 @@ import { Loading } from '../../(components)/Loading';
 import { UixErr, UixErrCode } from '../../../types/Result';
 import { useOperation } from '../../(hooks)/useOperation';
 import { useApplicationStore } from '../../(stores)/applicationStore';
-import { createNeo4jClient } from '../../../clients/neo4j';
 import { CreateUniqueIndex } from './CreateUniqueIndex';
 import { CreatePropertyVector } from './CreatePropertyVector';
 import { CreateNodeTypeVector } from './CreateNodeTypeVector';
 
 export const SeedNeo4j = () => {
     const uixConfig = useApplicationStore(state => state.uixConfig)
-    const neo4jDriver = useMemo(() => uixConfig && createNeo4jClient(uixConfig.neo4jConfig), [uixConfig])
+    const neo4jDriver = useApplicationStore(state => state.neo4jDriver)
     useOperation({
         dependencies: [neo4jDriver],
         operationKey: 'createNullNode',
@@ -27,7 +26,6 @@ export const SeedNeo4j = () => {
             code: UixErrCode.CREATE_NULL_NODE_FAILED,
             message: `Failed to create Null node: ${error.message}`
         }),
-        finallyOp: async ([neo4jDriver]) => await neo4jDriver.close(),
         render: {
             Success: () => <Text>✅ Null node created.</Text>,
             Pending: () => <Loading text="Creating null node..." />,
@@ -37,11 +35,16 @@ export const SeedNeo4j = () => {
     if (!uixConfig) return <></>
     return (<>
         {uixConfig.graph.nodeTypeSet.map(NodeType =>
-            NodeType.nodeTypeVectorDescription && <CreateNodeTypeVector nodeType={NodeType.type} />
+            NodeType.nodeTypeVectorDescription
+            && <CreateNodeTypeVector
+                key={NodeType.type}
+                nodeType={NodeType.type}
+            />
         )}
         {uixConfig.graph.nodeTypeSet.map(NodeType =>
             NodeType.uniqueIndexes.map(uniqueIndex =>
                 <CreateUniqueIndex
+                    key={`${NodeType.type}-${uniqueIndex}`}
                     nodeType={NodeType.type}
                     propertyName={uniqueIndex}
                 />
@@ -50,6 +53,7 @@ export const SeedNeo4j = () => {
         {uixConfig.graph.nodeTypeSet.map(NodeType =>
             NodeType.propertyVectors.map(propertyVector =>
                 <CreatePropertyVector
+                    key={`${NodeType.type}-${propertyVector}`}
                     nodeType={NodeType.type}
                     propertyName={propertyVector}
                 />

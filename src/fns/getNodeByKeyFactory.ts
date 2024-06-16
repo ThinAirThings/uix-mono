@@ -7,6 +7,12 @@ import { UixErr, Ok, UixErrCode } from "../types/Result";
 
 
 
+/**
+ * Factory for creating an action to get a node by key in the database
+ * @param neo4jDriver The neo4j driver to use
+ * @param nodeTypeMap The node type map to use
+ * @returns The get node by key action
+ */
 export const getNodeByKeyFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(

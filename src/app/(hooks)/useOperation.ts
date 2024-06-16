@@ -28,9 +28,9 @@ export const useOperation = <
     catchOp: (error: any, dependencies: NonNullableElements<Dependencies>) => Result<never, ErrType<ErrorType, ErrorInfo>>,
     finallyOp?: (dependencies: NonNullableElements<Dependencies>) => void,
     render: {
-        Success: FC<{ data: T, dependencies: Dependencies }>
-        Pending: FC<{ dependencies: Dependencies }>
-        Error: FC<{ error: ErrType<ErrorType, ErrorInfo>, dependencies: Dependencies }>
+        Success: FC<{ data: T, dependencies: NonNullableElements<Dependencies> }>
+        Pending: FC<{ dependencies: NonNullableElements<Dependencies> }>
+        Error: FC<{ error: ErrType<ErrorType, ErrorInfo>, dependencies: NonNullableElements<Dependencies> }>
     }
     dependencies: Dependencies
 }) => {
@@ -54,7 +54,9 @@ export const useOperation = <
         if (!result) {
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
-                    Component: () => render.Pending({ dependencies }),
+                    Component: () => render.Pending({
+                        dependencies: dependencies as NonNullableElements<Dependencies>
+                    }),
                     operationState: 'pending'
                 })
             })
@@ -64,7 +66,10 @@ export const useOperation = <
         if (error) {
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
-                    Component: () => render.Error({ error, dependencies }),
+                    Component: () => render.Error({
+                        error,
+                        dependencies: dependencies as NonNullableElements<Dependencies>
+                    }),
                     operationState: 'error'
                 })
             })
@@ -73,7 +78,10 @@ export const useOperation = <
         if (data) {
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
-                    Component: () => render.Success({ data, dependencies }),
+                    Component: () => render.Success({
+                        data,
+                        dependencies: dependencies as NonNullableElements<Dependencies>
+                    }),
                     operationState: 'success'
                 })
             })

@@ -17,6 +17,10 @@ export type SetNodeTypes<
     NodeTypeMap[ParentNodeType]
 )['relationshipTypeSet'][number] & { relationshipClass: 'Set' })['toNodeType']['type']
 
+export type GenericNodeKey = NodeKey<
+    AnyNodeTypeMap,
+    keyof AnyNodeTypeMap
+>
 export type NodeKey<
     NodeTypeMap extends AnyNodeTypeMap,
     NodeType extends keyof NodeTypeMap

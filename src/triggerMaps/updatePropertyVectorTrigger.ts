@@ -1,4 +1,5 @@
 import { openAIAction } from "../clients/openai";
+import { Ok } from "../types/Result";
 
 
 
@@ -12,9 +13,9 @@ export const updatePropertyVectorTrigger = openAIAction(async ({
     propertyVectorKey: string
     propertyValue: string
 }) => {
-    return {
+    return Ok({
         nodeType,
         propertyVectorKey,
         propertyValue
-    }
+    })
 })

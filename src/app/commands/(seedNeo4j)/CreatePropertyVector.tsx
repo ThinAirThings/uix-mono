@@ -1,6 +1,5 @@
 import { useOperation } from "../../(hooks)/useOperation"
 import React, { FC, useMemo } from 'react'
-import { createNeo4jClient } from "../../../clients/neo4j"
 import { useApplicationStore } from "../../(stores)/applicationStore"
 import { Loading } from "../../(components)/Loading"
 import { UixErr, UixErrCode } from "../../../types/Result"
@@ -15,9 +14,8 @@ export const CreatePropertyVector: FC<{
     nodeType,
     propertyName
 }) => {
-        const uixConfig = useApplicationStore(state => state.uixConfig)
-        const neo4jDriver = useMemo(() => uixConfig && createNeo4jClient(uixConfig.neo4jConfig), [uixConfig])
-        const createPropertyVectorResult = useOperation({
+        const neo4jDriver = useApplicationStore(state => state.neo4jDriver)
+        useOperation({
             dependencies: [neo4jDriver],
             operationKey: `createPropertyVector-${nodeType}-${propertyName}`,
             tryOp: async ([neo4jDriver]) => {
@@ -43,7 +41,6 @@ export const CreatePropertyVector: FC<{
                     }
                 })
             },
-            finallyOp: async ([neo4jDriver]) => await neo4jDriver.close(),
             render: {
                 Success: () => <Success message={`Successfully created property vector for ${nodeType}Node on property ${propertyName}`} />,
                 Pending: () => <Loading text={`Creating property vector for ${nodeType}`} />,

@@ -1,19 +1,18 @@
 import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType } from "zod";
 import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType.js";
-
+import EventEmitter from 'node:events';
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
 //  \___/ \__|_|_|_|\__|\_, |   |_| \_, | .__/\___/__/
 //                      |__/        |__/|_|           
-type UnwrapZodOptional<T extends ZodTypeAny> = T extends ZodOptional<infer U> ? U : T;
-type UnwrapZodDefault<T extends ZodTypeAny> = T extends ZodDefault<infer U> ? U : T;
+
 export type AnyNodeType = NodeType<any, any, any, any, any, any>
 export type GenericNodeType = NodeType<
     Capitalize<string>,
     AnyZodObject,
     ['nodeId', ...readonly Capitalize<string>[]],
-    [],
+    string[],
     GenericRelationshipTypeSet,
     string
 >
@@ -28,7 +27,8 @@ export type NodeTypeMap<NodeTypeSet extends AnyNodeTypeSet> = {
 }
 
 export type NodeState<T extends AnyNodeType> = TypeOf<T['stateSchema']>
-
+export type AnyNodeShape = NodeShape<AnyNodeType>
+export type GenericNodeShape = NodeShape<GenericNodeType>
 export type NodeShape<T extends AnyNodeType> = NodeState<T> & {
     nodeId: string
     nodeType: T['type']
@@ -38,6 +38,10 @@ export type NodeShape<T extends AnyNodeType> = NodeState<T> & {
 type StringProperties<T extends AnyZodObject> = {
     [K in keyof TypeOf<T>]: NonNullable<TypeOf<T>[K]> extends string ? K : never
 }[keyof TypeOf<T>]
+
+type TriggerMap<NodeShape extends AnyNodeShape> = Map<'onCreate' | 'onUpdate' | 'onDelete',
+    Map<string, (node: NodeShape) => void>
+>
 //  ___       __ _      _ _   _          
 // |   \ ___ / _(_)_ _ (_) |_(_)___ _ _  
 // | |) / -_)  _| | ' \| |  _| / _ \ ' \ 
@@ -50,6 +54,7 @@ export class NodeType<
     RelationshipTypeSet extends AnyRelationshipTypeSet | [] = [],
     NodeTypeVectorDescription extends string | undefined = undefined,
 > {
+
     //      ___             _               _           
     //     / __|___ _ _  __| |_ _ _ _  _ __| |_ ___ _ _ 
     //    | (__/ _ \ ' \(_-<  _| '_| || / _|  _/ _ \ '_|
@@ -61,6 +66,7 @@ export class NodeType<
         public propertyVectors: PropertyVectors = [] as PropertyVectors,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
         public nodeTypeVectorDescription: NodeTypeVectorDescription = '' as NodeTypeVectorDescription,
+        public triggerMap: TriggerMap<NodeShape<NodeType<Type, StateSchema, UniqueIndexes, PropertyVectors, RelationshipTypeSet, NodeTypeVectorDescription>>> = new Map(),
         public shapeSchema = stateSchema.extend({
             nodeId: z.string(),
             nodeType: z.literal(type),
@@ -68,7 +74,6 @@ export class NodeType<
             updatedAt: z.string()
         })
     ) { }
-
     //  _  _         _       ___     _               _             
     // | \| |___  __| |___  | __|_ _| |_ ___ _ _  __(_)___ _ _  ___
     // | .` / _ \/ _` / -_) | _|\ \ /  _/ -_) ' \(_-< / _ \ ' \(_-<
@@ -184,6 +189,10 @@ export class NodeType<
             this.nodeTypeVectorDescription
         );
     }
+
+
+
+
 }
 
 

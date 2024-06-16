@@ -19,6 +19,9 @@ export const UserNodeDefinition = defineNodeType('User', z.object({
     .defineUniqueRelationship(WorkPreferenceNodeDefinition)
     .defineSetRelationship(EducationNodeDefinition)
     .defineSetRelationship(WorkExperienceNodeDefinition)
+// .defineTrigger('onCreate', async (node, context) => {
+//     ReadableStreamDefaultController.es
+// })
 
 export type UserRoleType = TypeOf<typeof UserNodeDefinition['stateSchema']>
 

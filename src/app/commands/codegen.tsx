@@ -8,13 +8,14 @@ import { GenericUixConfig } from '../../config/defineConfig';
 import { require } from 'tsx/cjs/api'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
-import { functionModuleTemplate } from './(codegen)/fileTemplates/functionModuleTemplate';
+import { functionModuleTemplate } from './(codegen)/functionModuleTemplate';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
 import { UixErr, UixErrCode } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
+import { generateFunctionModuleFile } from './(codegen)/generateFunctionModuleFile';
 
 
 export const options = z.object({
@@ -34,7 +35,7 @@ const Codegen: FC<{
 }) => CommandEnvironment({
     Command: () => {
         // Get config
-        const uixConfig = useOperation({
+        useOperation({
             dependencies: [],
             operationKey: 'uixConfig',
             tryOp: async () => {
@@ -59,7 +60,7 @@ const Codegen: FC<{
         })
         // Generate Code
         useOperation({
-            dependencies: [uixConfig],
+            dependencies: [useApplicationStore(store => store.uixConfig)],
             operationKey: 'codeGeneration',
             tryOp: async ([uixConfig]) => {
                 await new Promise(resolve => setTimeout(resolve, 500))
@@ -76,7 +77,7 @@ const Codegen: FC<{
                 message: `Code generation failed: ${error.message}`
             }),
             render: {
-                Success: () => <Text>✅ Code Generated @{uixConfig?.outdir}: Fully-typed operations</Text>,
+                Success: ({ dependencies: [uixConfig] }) => <Text>✅ Code Generated @{uixConfig.outdir}: Fully-typed operations</Text>,
                 Pending: () => <Loading text="Generating code..." />,
                 Error: ({ error }) => <Text >❌ Error generating code: {error.message}</Text>
             }
@@ -86,10 +87,8 @@ const Codegen: FC<{
         return (<>
             <Box flexDirection='column'>
                 <Box flexDirection='column' paddingBottom={1}>
-                    <Gradient name='vice'>
-                        <BigText text="Uix" font='simple' />
-                    </Gradient>
-                    <Text color='yellowBright'>by Thin Air</Text>
+                    <Newline />
+                    <Text>🕳️  🐰 Thin Air Codegen 🐰 🕳️</Text>
                 </Box>
             </Box>
             {/* Outputs */}
@@ -105,3 +104,12 @@ const Codegen: FC<{
 })
 
 export default Codegen;
+
+
+
+
+
+
+
+
+
