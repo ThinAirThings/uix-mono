@@ -10,11 +10,11 @@ import EventEmitter from 'node:events';
 export type AnyNodeType = NodeType<any, any, any, any, any, any>
 export type GenericNodeType = NodeType<
     Capitalize<string>,
-    AnyZodObject,
-    ['nodeId', ...readonly Capitalize<string>[]],
-    string[],
+    ZodObject<{}>,
+    ['nodeId'],
+    [],
     GenericRelationshipTypeSet,
-    string
+    { type: string, description: string } | undefined
 >
 export type GenericNodeTypeSet = readonly GenericNodeType[]
 export type AnyNodeTypeSet = readonly AnyNodeType[]
@@ -52,7 +52,7 @@ export class NodeType<
     UniqueIndexes extends (readonly (keyof TypeOf<StateSchema> | 'nodeId')[]) | ['nodeId'] = ['nodeId'],
     PropertyVectors extends (readonly (StringProperties<StateSchema>)[]) | [] = [],
     RelationshipTypeSet extends AnyRelationshipTypeSet | [] = [],
-    NodeTypeVectorDescription extends string | undefined = undefined,
+    NodeTypeVectorDescription extends { type: string, description: string } | undefined = undefined,
 > {
 
     //      ___             _               _           
@@ -65,7 +65,7 @@ export class NodeType<
         public uniqueIndexes: UniqueIndexes = ['nodeId'] as UniqueIndexes,
         public propertyVectors: PropertyVectors = [] as PropertyVectors,
         public relationshipTypeSet: RelationshipTypeSet = [] as RelationshipTypeSet,
-        public nodeTypeVectorDescription: NodeTypeVectorDescription = '' as NodeTypeVectorDescription,
+        public nodeTypeVectorDescription: NodeTypeVectorDescription = undefined as NodeTypeVectorDescription,
         public triggerMap: TriggerMap<NodeShape<NodeType<Type, StateSchema, UniqueIndexes, PropertyVectors, RelationshipTypeSet, NodeTypeVectorDescription>>> = new Map(),
         public shapeSchema = stateSchema.extend({
             nodeId: z.string(),
@@ -91,16 +91,20 @@ export class NodeType<
             this.nodeTypeVectorDescription
         );
     }
-    defineNodeTypeVectorDescription(
-        nodeTypeVectorDescription: string,
-    ) {
+    defineNodeTypeVectorDescription({
+        type,
+        description
+    }: {
+        type: string,
+        description: string,
+    }) {
         return new NodeType(
             this.type,
             this.stateSchema,
             this.uniqueIndexes,
             this.propertyVectors,
             this.relationshipTypeSet,
-            nodeTypeVectorDescription
+            { type, description }
         );
     }
     // You might want to embed the property keys too

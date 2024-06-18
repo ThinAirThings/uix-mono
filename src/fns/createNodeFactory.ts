@@ -2,10 +2,12 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
 import { TypeOf } from "zod"
 import { neo4jAction } from "../clients/neo4j"
-import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
+import { AnyNodeTypeMap, GenericNodeTypeMap, NodeShape } from "../types/NodeType"
 import { GenericNodeKey, NodeKey, ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
 import { UixErr, Ok, UixErrCode, AnyErrType } from "../types/Result"
 import { Action } from "../types/Action"
+import { createVectorNode } from "../triggers/createVectorNode"
+import OpenAI from "openai"
 
 
 export type GenericCreateNodeAction = Action<
@@ -20,10 +22,11 @@ export type GenericCreateNodeAction = Action<
  * @param nodeTypeMap The node type map to use
  * @returns The create node action
  */
-export const createNodeFactory = async <
+export const createNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap,
 >(
     neo4jDriver: Driver,
+    openaiClient: OpenAI,
     nodeTypeMap: NodeTypeMap,
 ) => neo4jAction(async <
     ParentOfNodeSetType extends ParentOfNodeSetTypes<NodeTypeMap>,
@@ -48,24 +51,25 @@ export const createNodeFactory = async <
         childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>
     }>>(/* cypher */ `
         MERGE (childNode:Node:${childNodeType} {nodeId: $childNode.nodeId})
-        ON CREATE SET childNode += $childNode
-        ON MATCH SET childNode += $childNode
+        ON CREATE 
+            SET childNode += $childNode
+        ON MATCH 
+            SET childNode += $childNode
         WITH childNode
         MATCH (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeKey.nodeId})
         MERGE (childNode)-[:CHILD_TO]->(parentNode)
-        // BREAK //
-        MERGE (vectorNode:${childNodeType}Vector)-[:VECTOR_TO]->(childNode)
-        //////////
         RETURN childNode
     `, {
         parentNodeKey,
         childNode: newNodeStructure
-    }).then(res => res.records[0])
+    }).then(res => res.records[0]!.get('childNode').properties)
     if (!node) return UixErr({
         code: UixErrCode.CREATE_NODE_FAILED,
-        message: `Failed to create node of type ${childNodeType} with parent ${parentNodeKey.nodeType as string} ${parentNodeKey.nodeId}`
-    })
+        message: `Failed to create node of type ${childNodeType} with parent ${parentNodeKey.nodeType as string} ${parentNodeKey.nodeId}`,
+    });
     // Triggers
 
-    return Ok(node.get('childNode').properties)
+    (<GenericNodeTypeMap>nodeTypeMap)[childNodeType]!.nodeTypeVectorDescription && await createVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[childNodeType]!)
+
+    return Ok(node)
 })

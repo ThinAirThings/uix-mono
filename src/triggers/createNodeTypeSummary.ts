@@ -1,6 +1,6 @@
 import OpenAI from "openai"
 import { GenericNodeShape, GenericNodeType } from "../types/NodeType"
-import { Driver } from "neo4j-driver"
+import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { Ok } from "../types/Result"
 import { openAIAction } from "../clients/openai"
 import { neo4jAction } from "../clients/neo4j"
@@ -17,38 +17,50 @@ export const createNodeTypeSummary = async (
     // You'll just log it.
     const result = await neo4jAction(openAIAction(async () => {
         // Create Node Type Summary
+        console.log(nodeDefinition.nodeTypeVectorDescription)
+        console.log(JSON.stringify(nodeShape))
+        const { type, description } = nodeDefinition.nodeTypeVectorDescription!
         const nodeTypeSummary = await openaiClient.chat.completions.create({
             model: 'gpt-4o',
             messages: [
                 {
                     role: 'system',
                     content:
-                        + `You are an AI designed to convert a JSON structure of data into a paragraph of information summarizing the data.`
-                        + `You should consider the paragraph you write to be representative of a 'type' of data.`
-                        + `The user will describe to you what 'type' paragraph you are supposed to convert the data to and you will generate the paragraph.`
+                        `You are an AI designed to write a paragraph about a ${type} as if you were writing a paragraph designated to define a '${type.toUpperCase()}Type'.\n`
+                        + `A '${type.toUpperCase()}Type' is an abstract representation of a ${type} such that the information represents the properties of a ${type} in a way that encodes the ${type} to be semantically complete and follows the following description: ${description}.\n`
+                        + `Your job is to generate the '${type.toUpperCase()}Type' paragraph to the best of your ability.\n`
+                        + `The '${type.toUpperCase()}Type' paragraph should fully represent the '${type.toUpperCase()}Type' as it was defined.\n`
+                        + `Your will receive information in a JSON.stringified format that you will use to generate the '${type.toUpperCase()}Type' paragraph.\n`
+                        + `You should ignore information that is not relevant to the '${type.toUpperCase()}Type' paragraph as it was defined.\n`
                 }, {
                     role: 'user',
-                    content:
-                        + `Create a 'type' paragraph based on the following information: ${nodeDefinition.nodeTypeVectorDescription}`
-                        + `The JSON data to use is: ${JSON.stringify(nodeShape)}`
+                    content: `The JSON data to use is: ${JSON.stringify(nodeShape)}`
                 }
             ]
         }).then(res => res.choices[0].message.content ?? '')
+        console.log(nodeTypeSummary)
         const nodeTypeEmbedding = await openaiClient.embeddings.create({
             model: 'text-embedding-3-large',
             input: nodeTypeSummary
         }).then(res => res.data[0].embedding)
         // Update Node
-        await neo4jDriver.executeQuery(/*cypher*/`
-            MERGE (vectorNode:${nodeShape.type}Vector {nodeId: $nodeId})
-            SET node.nodeTypeSummary = $nodeTypeSummary
-            SET node.nodeTypeEmbedding = $nodeTypeEmbedding
-            RETURN node
+        const nodeResult = await neo4jDriver.executeQuery<EagerResult<{
+            vectorNode: Node<Integer, GenericNodeShape>
+        }>>(/*cypher*/`
+            MATCH (node:${nodeShape.nodeType} {nodeId: $nodeId})
+            MERGE (vectorNode:${nodeShape.nodeType}Vector {nodeId: $nodeId})-[:VECTOR_TO]->(node)
+            ON CREATE 
+                SET vectorNode += $vectorNodeStructure
+            ON MATCH 
+                SET vectorNode += $vectorNodeStructure
+            RETURN vectorNode
         `, {
             nodeId: nodeShape.nodeId,
-            nodeTypeSummary,
-            nodeTypeEmbedding
-        }).then(res => res.records[0].get('node').properties)
+            vectorNodeStructure: {
+                nodeTypeSummary,
+                nodeTypeEmbedding
+            }
+        }).then(res => res.records[0].get('vectorNode').properties)
         return Ok(true as true)
     }))()
     const { data, error } = result

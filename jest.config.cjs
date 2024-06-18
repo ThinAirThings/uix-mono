@@ -15,4 +15,7 @@ module.exports = {
     transformIgnorePatterns: [
         '/node_modules/(?!(your-module|another-module)/)',
     ],
+    moduleNameMapper: {
+        '@thinairthings/uix': '<rootDir>/node_modules/@thinairthings/uix/dist/lib/index.js',
+    },
 };

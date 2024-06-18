@@ -25,6 +25,7 @@ applicationStore.subscribe(
         })
     }
 )
+
 // Close the neo4j driver when all operations are successful
 applicationStore.subscribe(
     state => state.outputMap,
@@ -33,7 +34,6 @@ applicationStore.subscribe(
         await applicationStore.getState().neo4jDriver?.close()
     }
 )
-
 
 
 export const useApplicationStore = <R>(

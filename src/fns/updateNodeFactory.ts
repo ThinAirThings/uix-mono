@@ -16,7 +16,7 @@ import { openAIAction } from "../clients/openai"
  * @param nodeTypeMap The node type map to use
  * @returns The update node action
  */
-export const updateNodeFactory = async <
+export const updateNodeFactory = <
     NodeTypeMap extends AnyNodeTypeMap
 >(
     neo4jDriver: Driver,
@@ -56,12 +56,14 @@ export const updateNodeFactory = async <
     })
     // Run Triggers
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
-    await Promise.all(nodeDefinition.propertyVectors.map(async propertyVectorKey => await updateVectorNode(
-        neo4jDriver,
-        openaiClient,
-        propertyVectorKey,
-        node as AnyNodeShape
-    )))
+    await Promise.all(
+        nodeDefinition.propertyVectors.map(async propertyVectorKey => await updateVectorNode(
+            neo4jDriver,
+            openaiClient,
+            propertyVectorKey,
+            node as AnyNodeShape
+        ))
+    )
     // const triggers = nodeTypeMap[nodeKey.nodeType]!.triggerMap.get('onUpdate').forEach(trigger => trigger(nodeKey, node))
     return Ok(node)
 }))

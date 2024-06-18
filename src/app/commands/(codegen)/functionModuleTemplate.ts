@@ -16,7 +16,7 @@ const driver = neo4j.driver(
 const openaiClient = new OpenAI({
     apiKey: uixConfig.openaiConfig.apiKey
 })
-export const createNode = createNodeFactory(driver, uixConfig.graph.nodeTypeMap)
+export const createNode = createNodeFactory(driver, openaiClient, uixConfig.graph.nodeTypeMap)
 export const updateNode = updateNodeFactory(driver, openaiClient, uixConfig.graph.nodeTypeMap)
 export const deleteNode = deleteNodeFactory(driver, uixConfig.graph.nodeTypeMap)
 export const getNodeByKey = getNodeByKeyFactory(driver, uixConfig.graph.nodeTypeMap)

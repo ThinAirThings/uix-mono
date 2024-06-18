@@ -10,7 +10,9 @@ export const ProfileNodeDefinition = defineNodeType('Profile', z.object({
     age: z.number().optional(),
 }))
     .definePropertyVector(['aboutMe'])
-    .defineNodeTypeVectorDescription(
-        + `A profile type node that represents a user's profile type.`
-        + `This type should holistically represent the person who owns the profile such that all semantic meaning relevant to how this person would fit for a job position is captured.`
-    )
+    .defineNodeTypeVectorDescription({
+        description:
+            + `A profile type node that represents a user's profile type.`
+            + `This type should holistically represent the person who owns the profile such that all semantic meaning relevant to how this person would fit for a job position is captured.`,
+        type: "person"
+    })
