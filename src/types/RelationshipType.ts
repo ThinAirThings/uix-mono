@@ -25,7 +25,7 @@ export type RelationshipClassType = 'Unique' | 'Set' | 'Edge'
 export class RelationshipType<
     RelationshipClass extends RelationshipClassType = RelationshipClassType,
     FromNodeTypeSet extends AnyNodeType = GenericNodeType,
-    RelationshipType extends Uppercase<string> = Uppercase<string>,
+    Type extends Uppercase<string> = Uppercase<string>,
     ToNodeType extends AnyNodeType = GenericNodeType,
     StateSchema extends ZodObject<any> | undefined = undefined,
 > {
@@ -36,7 +36,7 @@ export class RelationshipType<
     constructor(
         public relationshipClass: RelationshipClass,
         public fromNodeTypeSet: FromNodeTypeSet,
-        public relationshipType: RelationshipType,
+        public type: Type,
         public toNodeType: ToNodeType,
         public stateSchema: StateSchema = undefined as StateSchema
     ) { }
@@ -52,7 +52,7 @@ export class RelationshipType<
         return new RelationshipType(
             this.relationshipClass,
             this.fromNodeTypeSet,
-            this.relationshipType,
+            this.type,
             this.toNodeType,
             stateSchema
         )
@@ -79,11 +79,11 @@ export class RelationshipType<
 // >(
 //     relationshipClass: RelationshipClassType,
 //     fromNodeTypeSet: FromNodeTypeSet,
-//     relationshipType: RelationshipType,
+//     type: RelationshipType,
 //     toNodeTypeSet: ToNodeTypeSet
 // ) => new RelationshipType(
 //     relationshipClass,
 //     fromNodeTypeSet,
-//     relationshipType,
+//     type,
 //     toNodeTypeSet,
 // ) 

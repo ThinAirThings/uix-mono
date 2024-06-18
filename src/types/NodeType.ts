@@ -62,23 +62,26 @@ export type UniqueParentTypes<NodeTypeMap extends AnyNodeTypeMap> = {
     : Type
 }[keyof NodeTypeMap]
 
+// export type NodeSetChildNodeTypes<
+//     NodeTypeMap extends AnyNodeTypeMap,
+//     ParentNodeType extends keyof NodeTypeMap
+// > = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Set' }) extends RelationshipType<
+//     any, any, any, infer ToNodeType, any
+// >
+//     ? ToNodeType['type']
+//     : never
+
 export type NodeSetChildNodeTypes<
     NodeTypeMap extends AnyNodeTypeMap,
     ParentNodeType extends keyof NodeTypeMap
-> = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Set' }) extends RelationshipType<
-    any, any, any, infer ToNodeType, any
->
-    ? ToNodeType['type']
-    : never
+> = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Set' })['toNodeType']['type']
 
 export type UniqueChildNodeTypes<
     NodeTypeMap extends AnyNodeTypeMap,
     ParentNodeType extends keyof NodeTypeMap
-> = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Unique' }) extends RelationshipType<
-    any, any, any, infer ToNodeType, any
->
-    ? ToNodeType['type']
-    : never
+> = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Unique' })['toNodeType']['type']
+
+
 
 type StringProperties<T extends AnyZodObject> = {
     [K in keyof TypeOf<T>]: NonNullable<TypeOf<T>[K]> extends string ? K : never
@@ -215,10 +218,10 @@ export class NodeType<
         );
     }
     defineEdgeRelationship<
-        RelationshipType extends Uppercase<string>,
+        EdgeRelationshipType extends Uppercase<string>,
         ToNodeType extends AnyNodeType
     >(
-        relationshipType: RelationshipType,
+        relationshipType: EdgeRelationshipType,
         toNodeType: ToNodeType
     ) {
         return new NodeType(

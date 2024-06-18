@@ -54,8 +54,9 @@ test('Integration test', async () => {
     const childNodes = await getChildNodeSet(userNode, 'Education')
     expect(childNodes.data).toBeTruthy()
     expect(childNodes.data!.length).toBeGreaterThan(0)
+    // childNodes.data![0] // Type test
     // Check getUniqueChildNode
-    const workPreferenceNode = await getUniqueChildNode(userNode, 'WorkPreference' as const)
+    const workPreferenceNode = await getUniqueChildNode(userNode, 'Profile')
     expect(workPreferenceNode.data).toBeTruthy()
     // Check getNodeByIndex
     const userNodeFromIndex = await getNodeByIndex('User', 'email', userNode.email)

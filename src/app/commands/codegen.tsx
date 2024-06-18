@@ -9,13 +9,10 @@ import { require } from 'tsx/cjs/api'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { functionModuleTemplate } from './(codegen)/functionModuleTemplate';
-import Gradient from 'ink-gradient';
-import BigText from 'ink-big-text';
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
 import { UixErr, UixErrCode } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
-import { useUixTemplate } from './(codegen)/useUixTemplate';
 
 
 export const options = z.object({
