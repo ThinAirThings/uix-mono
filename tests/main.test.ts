@@ -1,8 +1,8 @@
 import { execSync } from 'child_process'
-import { TestErr, tryCatch } from '../src/types/Result'
-import { createNode, updateNode, getNodeByKey, getVectorNodeByKey, getAllOfNodeType, getChildNodeSet, getUniqueChildNode, getNodeByIndex, deleteNode } from './uix/generated/functionModule'
 import { v4 as uuid } from 'uuid'
 import { expect, test } from 'vitest'
+import { TestErr, tryCatch } from '../src/types/Result.js'
+import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule.js'
 
 test('Integration test', async () => {
     const { data, error } = await tryCatch({
