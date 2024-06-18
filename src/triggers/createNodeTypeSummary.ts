@@ -17,8 +17,7 @@ export const createNodeTypeSummary = async (
     // You'll just log it.
     const result = await neo4jAction(openAIAction(async () => {
         // Create Node Type Summary
-        console.log(nodeDefinition.nodeTypeVectorDescription)
-        console.log(JSON.stringify(nodeShape))
+        console.log("Creating Node Type Summary", nodeShape)
         const { type, description } = nodeDefinition.nodeTypeVectorDescription!
         const nodeTypeSummary = await openaiClient.chat.completions.create({
             model: 'gpt-4o',
@@ -38,7 +37,6 @@ export const createNodeTypeSummary = async (
                 }
             ]
         }).then(res => res.choices[0].message.content ?? '')
-        console.log(nodeTypeSummary)
         const nodeTypeEmbedding = await openaiClient.embeddings.create({
             model: 'text-embedding-3-large',
             input: nodeTypeSummary

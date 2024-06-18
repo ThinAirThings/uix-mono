@@ -39,8 +39,8 @@ export const industries = [
 ] as const
 
 export const WorkPreferenceNodeDefinition = defineNodeType('WorkPreference', z.object({
-    industryPreferenceSet: z.enum(industries).catch('Entertainment').array(),
-    workPreferenceSet: z.enum(['Remote', 'Onsite', 'Hybrid']).catch('Onsite').array(),
-    positionTypePreferenceSet: z.enum(['Full-Time', 'Part-Time', 'Contract', 'Internship']).catch('Full-Time').array(),
+    industryPreferenceSet: z.enum(industries).array().catch(['Other']),
+    workPreferenceSet: z.enum(['Remote', 'Onsite', 'Hybrid']).array().catch(['Onsite']),
+    positionTypePreferenceSet: z.enum(['Full-Time', 'Part-Time', 'Contract', 'Internship']).array().catch(['Full-Time']),
 }))
 

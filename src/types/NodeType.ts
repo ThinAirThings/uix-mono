@@ -1,6 +1,5 @@
 import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType } from "zod";
 import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType.js";
-import EventEmitter from 'node:events';
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
@@ -35,6 +34,52 @@ export type NodeShape<T extends AnyNodeType> = NodeState<T> & {
     createdAt: string
     updatedAt: string
 }
+export type VectorNodeShape<T extends AnyNodeType> = ({
+    [K in keyof TypeOf<T['stateSchema']> as K extends T['propertyVectors'][number]
+    ? K
+    : never
+    ]-?: number[]
+}) & ({
+    nodeId: string
+    nodeType: T['type']
+    createdAt: string
+    updatedAt: string
+}) & (T['nodeTypeVectorDescription'] extends { type: string, description: string }
+    ? {
+        nodeTypeSummary: string
+        nodeTypeEmbedding: number[]
+    } : {})
+
+export type NodeSetParentTypes<NodeTypeMap extends AnyNodeTypeMap> = {
+    [Type in keyof NodeTypeMap]: (NodeTypeMap[Type]['relationshipTypeSet'][number] & { relationshipClass: 'Set' }) extends AnyRelationshipTypeSet
+    ? never
+    : Type
+}[keyof NodeTypeMap]
+
+export type UniqueParentTypes<NodeTypeMap extends AnyNodeTypeMap> = {
+    [Type in keyof NodeTypeMap]: (NodeTypeMap[Type]['relationshipTypeSet'][number] & { relationshipClass: 'Unique' }) extends AnyRelationshipTypeSet
+    ? never
+    : Type
+}[keyof NodeTypeMap]
+
+export type NodeSetChildNodeTypes<
+    NodeTypeMap extends AnyNodeTypeMap,
+    ParentNodeType extends keyof NodeTypeMap
+> = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Set' }) extends RelationshipType<
+    any, any, any, infer ToNodeType, any
+>
+    ? ToNodeType['type']
+    : never
+
+export type UniqueChildNodeTypes<
+    NodeTypeMap extends AnyNodeTypeMap,
+    ParentNodeType extends keyof NodeTypeMap
+> = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Unique' }) extends RelationshipType<
+    any, any, any, infer ToNodeType, any
+>
+    ? ToNodeType['type']
+    : never
+
 type StringProperties<T extends AnyZodObject> = {
     [K in keyof TypeOf<T>]: NonNullable<TypeOf<T>[K]> extends string ? K : never
 }[keyof TypeOf<T>]

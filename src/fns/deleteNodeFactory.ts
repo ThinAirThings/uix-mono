@@ -25,20 +25,16 @@ export const deleteNodeFactory = <
         parentNodeId: string,
         parentNodeType: string
     }>>(/*cypher*/ `
-        MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId})-[:CHILD_TO]->(parent)
-        WITH parent, node
-        DETACH DELETE node
-        RETURN parent.nodeId AS parentNodeId, parent.nodeType AS parentNodeType
+        MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(children)
+        DETACH DELETE node, children
     `, {
         ...nodeKey
     })
-    if (!result.records[0]) return UixErr({
-        code: UixErrCode.DELETE_NODE_FAILED,
-        message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`
-    })
-    return Ok({
-        parentNodeId: result.records[0].get('parentNodeId'),
-        parentNodeType: result.records[0].get('parentNodeType')
-    })
+    console.log(result)
+    // if (!result.records[0]) return UixErr({
+    //     code: UixErrCode.DELETE_NODE_FAILED,
+    //     message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`
+    // })
+    return Ok(true)
 })
 

@@ -3,7 +3,6 @@ import { GenericUixConfig } from "../../../config/defineConfig";
 import path from 'path';
 // Function to generate the module file content
 export const generateFunctionModuleFile = async (config: GenericUixConfig) => {
-    console.log(config.outdir)
     const project = new Project({ compilerOptions: { outDir: "dist" } });
     const sourceFile = project.createSourceFile(
         path.join(process.cwd(), config.outdir, "functionModule.ts"),

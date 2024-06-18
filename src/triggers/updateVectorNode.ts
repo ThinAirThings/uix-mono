@@ -14,7 +14,7 @@ export const updateVectorNode = async (
     // Create Embedding
     const propertyKey = Object.keys(nodeShape).find(key => key === propertyVectorKey)
     if (!propertyKey) return Ok(null)
-    
+
     const embedding = await openaiClient.embeddings.create({
         model: 'text-embedding-3-large',
         input: nodeShape[propertyKey as string]
@@ -34,6 +34,5 @@ export const updateVectorNode = async (
         nodeId: nodeShape.nodeId,
         embedding
     }).then(res => res.records[0].get('node').properties)
-    console.log("UpdatedNode", updatedNode)
     return Ok(true)
 }

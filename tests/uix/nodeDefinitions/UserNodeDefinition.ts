@@ -15,10 +15,10 @@ export const UserNodeDefinition = defineNodeType('User', z.object({
     profileImageUrl: z.string().optional(),
 }))
     .defineUniqueIndexes(['email'])
-    .defineUniqueRelationship(ProfileNodeDefinition)
-    .defineUniqueRelationship(WorkPreferenceNodeDefinition)
     .defineSetRelationship(EducationNodeDefinition)
     .defineSetRelationship(WorkExperienceNodeDefinition)
+    .defineUniqueRelationship(ProfileNodeDefinition)
+    .defineUniqueRelationship(WorkPreferenceNodeDefinition)
 
 export type UserRoleType = TypeOf<typeof UserNodeDefinition['stateSchema']>
 

@@ -15,7 +15,7 @@ import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
 import { UixErr, UixErrCode } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
-import { generateFunctionModuleFile } from './(codegen)/generateFunctionModuleFile';
+import { useUixTemplate } from './(codegen)/useUixTemplate';
 
 
 export const options = z.object({
@@ -70,6 +70,10 @@ const Codegen: FC<{
                     path.join(pathToFiles, 'functionModule.ts'),
                     functionModuleTemplate(uixConfig)
                 )
+                // await writeFile(
+                //     path.join(pathToFiles, 'useUix.ts'),
+                //     useUixTemplate()
+                // )
                 return true
             },
             catchOp: (error: Error) => UixErr({
