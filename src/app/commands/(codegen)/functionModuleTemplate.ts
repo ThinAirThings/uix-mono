@@ -20,6 +20,7 @@ import {
 } from '@thinairthings/uix'
 import neo4j from 'neo4j-driver'
 import OpenAI from 'openai'
+
 const driver = neo4j.driver(
     uixConfig.neo4jConfig.uri, 
     neo4j.auth.basic(uixConfig.neo4jConfig.username, uixConfig.neo4jConfig.password)

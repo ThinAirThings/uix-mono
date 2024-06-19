@@ -10,6 +10,12 @@ export const createOpenAIClient = (config: {
     apiKey: config.apiKey
 })
 
+
+export const OpenAIErr = (
+    error: InstanceType<typeof OpenAIError>,
+    message: string = error.message
+) => Err('OpenAIError', message, error)
+
 export const openAIAction = <
     Input extends any[],
     T,
@@ -32,6 +38,3 @@ export const openAIAction = <
         }
     }
 
-export const OpenAIErr = (
-    error: InstanceType<typeof OpenAIError>
-) => Err('OpenAIError', error)

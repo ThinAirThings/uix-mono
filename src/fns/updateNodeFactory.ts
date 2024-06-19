@@ -3,11 +3,11 @@
 import { Driver, EagerResult, error, Integer, Node } from "neo4j-driver"
 import { AnyNodeShape, AnyNodeTypeMap, GenericNodeShape, GenericNodeType, NodeShape, NodeState } from "../types/NodeType"
 import { neo4jAction } from "../clients/neo4j"
-import { NodeKey } from "../types/types"
 import { UixErr, Ok, UixErrCode } from "../types/Result"
 import OpenAI from "openai"
 import { updateVectorNode } from "../triggers/updateVectorNode"
 import { openAIAction } from "../clients/openai"
+import { NodeKey } from "../types/NodeKey"
 
 
 /**

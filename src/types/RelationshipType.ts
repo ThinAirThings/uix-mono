@@ -10,9 +10,9 @@ import { AnyNodeType, GenericNodeType } from "./NodeType.js"
 export type AnyRelationshipType = RelationshipType<any, any, any, any, any>
 export type GenericRelationshipType = RelationshipType<
     RelationshipClassType,
-    GenericNodeType,
+    AnyNodeType,
     Uppercase<string>,
-    GenericNodeType,
+    AnyNodeType,
     ZodObject<any> | undefined
 >
 export type GenericRelationshipTypeSet = readonly GenericRelationshipType[]

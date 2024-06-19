@@ -1,9 +1,9 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { AnyNodeTypeMap, NodeShape, NodeState, UniqueChildNodeTypes, UniqueParentTypes } from "../types/NodeType";
 import { neo4jAction } from "../clients/neo4j";
-import { NodeKey } from "../types/types";
 import { Ok, UixErr, UixErrCode } from "../types/Result";
 import { v4 as uuid } from 'uuid'
+import { NodeKey } from "../types/NodeKey";
 
 
 export const getUniqueChildNodeFactory = <

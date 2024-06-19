@@ -25,15 +25,15 @@
 [34mESM[39m Build start
 [34mCJS[39m Build start
 [32mESM[39m [1mdist/cli/cli.js [22m[32m322.00 B[39m
-[32mESM[39m ⚡️ Build success in 15ms
-[32mESM[39m [1mdist/lib/index.js [22m[32m18.62 KB[39m
-[32mESM[39m ⚡️ Build success in 32ms
-[32mCJS[39m [1mdist/lib/index.cjs [22m[32m20.97 KB[39m
-[32mCJS[39m ⚡️ Build success in 33ms
+[32mESM[39m ⚡️ Build success in 17ms
+[32mCJS[39m [1mdist/lib/index.cjs [22m[32m20.93 KB[39m
+[32mCJS[39m ⚡️ Build success in 31ms
+[32mESM[39m [1mdist/lib/index.js [22m[32m18.57 KB[39m
+[32mESM[39m ⚡️ Build success in 31ms
 [32mESM[39m [1mdist/cli/cli.js              [22m[32m322.00 B[39m
 [32mESM[39m [1mdist/cli/commands/codegen.js [22m[32m18.21 KB[39m
-[32mESM[39m ⚡️ Build success in 36ms
+[32mESM[39m ⚡️ Build success in 32ms
 [34mDTS[39m Build start
-[32mDTS[39m ⚡️ Build success in 1332ms
-[32mDTS[39m [1mdist/lib/index.d.ts  [22m[32m17.08 KB[39m
-[32mDTS[39m [1mdist/lib/index.d.cts [22m[32m17.08 KB[39m
+[32mDTS[39m ⚡️ Build success in 1275ms
+[32mDTS[39m [1mdist/lib/index.d.ts  [22m[32m16.88 KB[39m
+[32mDTS[39m [1mdist/lib/index.d.cts [22m[32m16.88 KB[39m

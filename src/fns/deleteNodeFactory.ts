@@ -1,8 +1,8 @@
 import { Driver, EagerResult } from "neo4j-driver"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap } from "../types/NodeType"
-import { NodeKey } from "../types/types"
 import { UixErr, Ok, UixErrCode } from "../types/Result"
+import { NodeKey } from "../types/NodeKey"
 
 
 
@@ -30,7 +30,6 @@ export const deleteNodeFactory = <
     `, {
         ...nodeKey
     })
-    console.log(result)
     // if (!result.records[0]) return UixErr({
     //     code: UixErrCode.DELETE_NODE_FAILED,
     //     message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`

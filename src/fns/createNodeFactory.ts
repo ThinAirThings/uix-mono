@@ -3,11 +3,12 @@ import { v4 as uuid } from 'uuid'
 import { TypeOf } from "zod"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, GenericNodeTypeMap, NodeShape } from "../types/NodeType"
-import { GenericNodeKey, NodeKey, ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
+import { ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
 import { UixErr, Ok, UixErrCode, AnyErrType } from "../types/Result"
 import { Action } from "../types/Action"
 import { createVectorNode } from "../triggers/createVectorNode"
 import OpenAI from "openai"
+import { GenericNodeKey, NodeKey } from "../types/NodeKey"
 
 
 export type GenericCreateNodeAction = Action<

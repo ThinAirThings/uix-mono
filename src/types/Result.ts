@@ -52,7 +52,9 @@ export type ErrType<
     E extends Record<string, any>
 > = {
     type: T
-} & Omit<E, 'type'>
+    message: string
+    data: E
+}
 
 //  ___         
 // | __|_ _ _ _ 
@@ -61,14 +63,15 @@ export type ErrType<
 
 export const Err = <
     Type extends string,
-    Info extends Record<string, any>
->(type: Type, info: Info): Result<never, ErrType<Type, Info>> => {
-    console.error({ type, ...info })
+    Data extends Record<string, any>
+>(type: Type, message: string, data: Data): Result<never, ErrType<Type, Data>> => {
+    console.error({ type, ...data })
     return {
         data: null,
         error: {
             type,
-            ...info
+            message,
+            data: data
         }
     }
 }
@@ -103,11 +106,24 @@ export const UixErr = <
     message: string
     code: Code
     data?: Data
-}) => Err('UixErr', {
-    message,
+}) => Err('UixErr', message, {
     code,
-    data: data as Data extends Record<string, any> ? Data : null
+    data
 })
 
-export const TestErr = (error: Error) => Err('TestErr', error)
+export class QueryError<
+    ErrType extends AnyErrType
+> extends Error {
+    type: ErrType['type']
+    data: ErrType['data']
+    constructor(
+        err: ErrType
+    ) {
+        super(err.message)
+        this.type = err.type
+        this.data = err.data
+    }
+}
+
+export const TestErr = (error: Error) => Err('TestErr', 'Error while testing', error)
 

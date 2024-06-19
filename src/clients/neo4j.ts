@@ -14,7 +14,10 @@ export const createNeo4jClient = (config: {
     options
 )
 
-export const Neo4jErr = (error: Neo4jError) => Err('Neo4jErr', error)
+export const Neo4jErr = (
+    error: Neo4jError,
+    message: string = error.message
+) => Err('Neo4jErr', message, error)
 export const neo4jAction = <
     Input extends any[],
     T,

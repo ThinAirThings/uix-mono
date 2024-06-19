@@ -2,7 +2,7 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { neo4jAction } from "../clients/neo4j";
 import { AnyNodeTypeMap, NodeSetParentTypes, NodeShape, NodeSetChildNodeTypes } from "../types/NodeType";
 import { Ok } from "../types/Result";
-import { NodeKey } from "../types/types";
+import { NodeKey } from "../types/NodeKey";
 
 
 

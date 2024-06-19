@@ -13,6 +13,7 @@ import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
 import { UixErr, UixErrCode } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
+import { queryOptionsTemplate } from './(codegen)/queryOptionsTemplate';
 
 
 export const options = z.object({
@@ -67,10 +68,10 @@ const Codegen: FC<{
                     path.join(pathToFiles, 'functionModule.ts'),
                     functionModuleTemplate(uixConfig)
                 )
-                // await writeFile(
-                //     path.join(pathToFiles, 'useUix.ts'),
-                //     useUixTemplate()
-                // )
+                await writeFile(
+                    path.join(pathToFiles, 'queryOptions.ts'),
+                    queryOptionsTemplate()
+                )
                 return true
             },
             catchOp: (error: Error) => UixErr({
