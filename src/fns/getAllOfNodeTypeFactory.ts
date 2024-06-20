@@ -2,6 +2,7 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
 import { Ok } from "../types/Result"
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 
@@ -24,6 +25,6 @@ export const getAllOfNodeTypeFactory = <
     }>>(/*cypher*/`
         MATCH (node:${nodeType as string}) 
         RETURN node   
-    `).then(res => res.records.map(record => record.get('node').properties))
+    `).then(res => res.records.map(record => convertIntegersToNumbers(record.get('node').properties)))
     return Ok(nodes)
 })

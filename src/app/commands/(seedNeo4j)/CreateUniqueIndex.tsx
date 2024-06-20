@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react'
 import { useApplicationStore } from "../../(stores)/applicationStore"
 import { Loading } from "../../(components)/Loading"
 import { Text, Box } from 'ink'
-import { UixErr, UixErrCode } from "../../../types/Result"
+import { UixErr, UixErrSubtype } from "../../../types/Result"
 import { Error } from "../../(components)/Error"
 
 export const CreateUniqueIndex: FC<{
@@ -26,7 +26,7 @@ export const CreateUniqueIndex: FC<{
                 return true
             },
             catchOp: (error: Error) => UixErr({
-                code: UixErrCode.CREATE_UNIQUE_INDEX_FAILED,
+                subtype: UixErrSubtype.CREATE_UNIQUE_INDEX_FAILED,
                 message: `Failed to create unique constraint for ${nodeType}.${propertyName}: ${error.message}`,
                 data: {
                     neo4jErrorType: error.name,
@@ -39,7 +39,7 @@ export const CreateUniqueIndex: FC<{
                 Pending: () => <Loading text={`Creating unique index for ${nodeType}`} />,
                 Error: ({ error }) => (
                     <Error
-                        message={`Unique index creation failed for: ${error.data.nodeType}Node`}
+                        message={`Unique index creation failed for: ${error.data?.nodeType}Node`}
                         isBugReport={true}
                         error={error}
                     />

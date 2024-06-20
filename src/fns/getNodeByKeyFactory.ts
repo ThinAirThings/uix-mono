@@ -1,8 +1,9 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 import { neo4jAction } from "../clients/neo4j";
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType";
-import { UixErr, Ok, UixErrCode } from "../types/Result";
+import { UixErr, Ok, UixErrSubtype } from "../types/Result";
 import { NodeKey } from "../types/NodeKey";
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers";
 
 
 
@@ -23,15 +24,18 @@ export const getNodeByKeyFactory = <
 >(
     nodeKey: NodeKey<NodeTypeMap, NodeType>
 ) => {
-    const getNodeResult = await neo4jDriver.executeQuery<EagerResult<{
+    const node = await neo4jDriver.executeQuery<EagerResult<{
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
         MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 
         RETURN node   
-    `, { nodeId: nodeKey.nodeId })
-    if (!getNodeResult.records[0]) return UixErr({
-        code: UixErrCode.GET_NODE_BY_KEY_FAILED,
-        message: `Failed to find node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`
+    `, { nodeId: nodeKey.nodeId }).then(res => res.records[0]?.get('node').properties)
+    if (!node) return UixErr({
+        subtype: UixErrSubtype.GET_NODE_BY_KEY_FAILED,
+        message: `Failed to find node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
+        data: {
+            nodeKey
+        }
     })
-    return Ok(getNodeResult.records[0].get('node').properties)
+    return Ok(convertIntegersToNumbers(node))
 })

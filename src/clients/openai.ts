@@ -13,8 +13,16 @@ export const createOpenAIClient = (config: {
 
 export const OpenAIErr = (
     error: InstanceType<typeof OpenAIError>,
-    message: string = error.message
-) => Err('OpenAIError', message, error)
+) => Err({
+    type: 'OpenAIError',
+    subtype: OpenAIErrorSubtype.UNKNOWN,
+    message: error.message,
+    data: JSON.parse(JSON.stringify(error))
+})
+
+export enum OpenAIErrorSubtype {
+    UNKNOWN = 'UNKNOWN',
+}
 
 export const openAIAction = <
     Input extends any[],
@@ -27,7 +35,7 @@ export const openAIAction = <
 ): Promise<
     Result<T,
         | PrevErrType
-        | ErrType<'OpenAIError', InstanceType<typeof OpenAIError>>
+        | ErrType<'OpenAIError', OpenAIErrorSubtype, InstanceType<typeof OpenAIError>>
     >
 > => {
         try {

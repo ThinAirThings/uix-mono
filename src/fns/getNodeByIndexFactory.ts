@@ -1,7 +1,8 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { neo4jAction } from "../clients/neo4j"
 import { AnyNodeTypeMap, NodeShape } from "../types/NodeType"
-import { Ok, UixErr, UixErrCode } from "../types/Result"
+import { Ok, UixErr, UixErrSubtype } from "../types/Result"
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 
@@ -29,13 +30,13 @@ export const getNodeByIndexFactory = <
         `, { indexValue }
     ).then(res => res.records[0]?.get('node').properties)
     if (!node) return UixErr({
+        subtype: UixErrSubtype.GET_NODE_BY_INDEX_FAILED,
         message: `Failed to get node of type ${nodeType as string} with index ${indexKey} = ${indexValue}`,
-        code: UixErrCode.GET_NODE_BY_INDEX_FAILED,
         data: {
             nodeType,
             indexKey,
             indexValue
         }
     })
-    return Ok(node)
+    return Ok(convertIntegersToNumbers(node))
 })

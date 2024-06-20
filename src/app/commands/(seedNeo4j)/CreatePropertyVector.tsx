@@ -2,7 +2,7 @@ import { useOperation } from "../../(hooks)/useOperation"
 import React, { FC, useMemo } from 'react'
 import { useApplicationStore } from "../../(stores)/applicationStore"
 import { Loading } from "../../(components)/Loading"
-import { UixErr, UixErrCode } from "../../../types/Result"
+import { UixErr, UixErrSubtype } from "../../../types/Result"
 import { Neo4jError } from "neo4j-driver"
 import { Error } from "../../(components)/Error"
 import { Success } from "../../(components)/Success"
@@ -32,7 +32,7 @@ export const CreatePropertyVector: FC<{
             },
             catchOp: (error: Neo4jError) => {
                 return UixErr({
-                    code: UixErrCode.CREATE_PROPERTY_VECTOR_FAILED,
+                    subtype: UixErrSubtype.CREATE_PROPERTY_VECTOR_FAILED,
                     message: `Failed to create property vector for ${nodeType}.${propertyName}: ${error.message}`,
                     data: {
                         neo4jErrorType: error.name,

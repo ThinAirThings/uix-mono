@@ -4,16 +4,14 @@ import { ErrType, Result, tryCatch } from '../../types/Result'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { applicationStore } from '../(stores)/applicationStore'
 
+type Strictify<T extends readonly any[]> = { [K in keyof T]-?: T[K] & {} }
 
-
-type NonNullableElements<T> = T extends any[] ? {
-    [Idx in keyof T]: NonNullable<T[Idx]>
-} : never
 export const useOperation = <
     OperationKey extends string,
     T,
     ErrorType extends string,
-    ErrorInfo extends Record<string, any>,
+    ErrorSubtype extends string,
+    ErrorData extends Record<string, any> | undefined,
     Dependencies extends readonly any[]
 >({
     operationKey,
@@ -24,13 +22,13 @@ export const useOperation = <
     dependencies
 }: {
     operationKey: OperationKey
-    tryOp: (dependencies: NonNullableElements<Dependencies>) => Promise<T> | T,
-    catchOp: (error: any, dependencies: NonNullableElements<Dependencies>) => Result<never, ErrType<ErrorType, ErrorInfo>>,
-    finallyOp?: (dependencies: NonNullableElements<Dependencies>) => void,
+    tryOp: (dependencies: Strictify<Dependencies>) => Promise<T> | T,
+    catchOp: (error: any, dependencies: Strictify<Dependencies>) => Result<never, ErrType<ErrorType, ErrorSubtype, ErrorData>>,
+    finallyOp?: (dependencies: Strictify<Dependencies>) => void,
     render: {
-        Success: FC<{ data: T, dependencies: NonNullableElements<Dependencies> }>
-        Pending: FC<{ dependencies: NonNullableElements<Dependencies> }>
-        Error: FC<{ error: ErrType<ErrorType, ErrorInfo>, dependencies: NonNullableElements<Dependencies> }>
+        Success: FC<{ data: T, dependencies: Strictify<Dependencies> }>
+        Pending: FC<{ dependencies: Strictify<Dependencies> }>
+        Error: FC<{ error: ErrType<ErrorType, ErrorSubtype, ErrorData>, dependencies: Strictify<Dependencies> }>
     }
     dependencies: Dependencies
 }) => {
@@ -38,15 +36,15 @@ export const useOperation = <
         queryKey: [operationKey],
         queryFn: dependencies.length === 0
             ? async () => await tryCatch({
-                try: () => tryOp(dependencies as NonNullableElements<Dependencies>),
-                catch: (error) => catchOp(error, dependencies as NonNullableElements<Dependencies>),
-                finally: () => finallyOp?.(dependencies as NonNullableElements<Dependencies>)
+                try: () => tryOp(dependencies as Strictify<Dependencies>),
+                catch: (error) => catchOp(error, dependencies as Strictify<Dependencies>),
+                finally: () => finallyOp?.(dependencies as Strictify<Dependencies>)
             })
             : dependencies.every(dependency => (!!dependency))
                 ? async () => await tryCatch({
-                    try: () => tryOp(dependencies as NonNullableElements<Dependencies>),
-                    catch: (error) => catchOp(error, dependencies as NonNullableElements<Dependencies>),
-                    finally: () => finallyOp?.(dependencies as NonNullableElements<Dependencies>)
+                    try: () => tryOp(dependencies as Strictify<Dependencies>),
+                    catch: (error) => catchOp(error, dependencies as Strictify<Dependencies>),
+                    finally: () => finallyOp?.(dependencies as Strictify<Dependencies>)
                 })
                 : skipToken
     })
@@ -55,7 +53,7 @@ export const useOperation = <
             applicationStore.setState(({ outputMap }) => {
                 outputMap.set(operationKey, {
                     Component: () => render.Pending({
-                        dependencies: dependencies as NonNullableElements<Dependencies>
+                        dependencies: dependencies as Strictify<Dependencies>
                     }),
                     operationState: 'pending'
                 })
@@ -68,7 +66,7 @@ export const useOperation = <
                 outputMap.set(operationKey, {
                     Component: () => render.Error({
                         error,
-                        dependencies: dependencies as NonNullableElements<Dependencies>
+                        dependencies: dependencies as Strictify<Dependencies>
                     }),
                     operationState: 'error'
                 })
@@ -80,7 +78,7 @@ export const useOperation = <
                 outputMap.set(operationKey, {
                     Component: () => render.Success({
                         data,
-                        dependencies: dependencies as NonNullableElements<Dependencies>
+                        dependencies: dependencies as Strictify<Dependencies>
                     }),
                     operationState: 'success'
                 })

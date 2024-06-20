@@ -1,14 +1,15 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { v4 as uuid } from 'uuid'
-import { TypeOf } from "zod"
+import { TypeOf, z } from "zod"
 import { neo4jAction } from "../clients/neo4j"
-import { AnyNodeTypeMap, GenericNodeTypeMap, NodeShape } from "../types/NodeType"
+import { AnyNodeTypeMap, GenericNodeType, GenericNodeTypeMap, Neo4jNodeShape, NodeShape } from "../types/NodeType"
 import { ParentOfNodeSetTypes, SetNodeTypes } from "../types/types"
-import { UixErr, Ok, UixErrCode, AnyErrType } from "../types/Result"
+import { UixErr, Ok, UixErrSubtype, AnyErrType } from "../types/Result"
 import { Action } from "../types/Action"
-import { createVectorNode } from "../triggers/createVectorNode"
 import OpenAI from "openai"
 import { GenericNodeKey, NodeKey } from "../types/NodeKey"
+import { upsertVectorNode } from "../triggers/upsertVectorNode"
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 export type GenericCreateNodeAction = Action<
@@ -40,12 +41,13 @@ export const createNodeFactory = <
     nodeId?: string
 ) => {
     // Check Schema
-    const newNodeStructure = nodeTypeMap[childNodeType]!['shapeSchema'].parse({
+    const newNodeStructure = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema'].extend({
+        nodeId: z.string(),
+        nodeType: z.string()
+    }).parse({
         ...initialState,
         nodeId: nodeId ?? uuid(),
-        nodeType: childNodeType,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        nodeType: childNodeType
     })
     console.log("Creating", parentNodeKey, childNodeType, newNodeStructure)
     const node = await neo4jDriver.executeQuery<EagerResult<{
@@ -53,9 +55,13 @@ export const createNodeFactory = <
     }>>(/* cypher */ `
         MERGE (childNode:Node:${childNodeType} {nodeId: $childNode.nodeId})
         ON CREATE 
-            SET childNode += $childNode
+            SET childNode += $childNode,
+                childNode.createdAt = timestamp(),
+                childNode.updatedAt = timestamp()
+
         ON MATCH 
-            SET childNode += $childNode
+            SET childNode += $childNode,
+                childNode.updatedAt = timestamp()
         WITH childNode
         MATCH (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeKey.nodeId})
         MERGE (childNode)-[:CHILD_TO]->(parentNode)
@@ -63,14 +69,13 @@ export const createNodeFactory = <
     `, {
         parentNodeKey,
         childNode: newNodeStructure
-    }).then(res => res.records[0]!.get('childNode').properties)
+    }).then(res => res.records[0]?.get('childNode').properties)
     if (!node) return UixErr({
-        code: UixErrCode.CREATE_NODE_FAILED,
+        subtype: UixErrSubtype.CREATE_NODE_FAILED,
         message: `Failed to create node of type ${childNodeType} with parent ${parentNodeKey.nodeType as string} ${parentNodeKey.nodeId}`,
+        data: { parentNodeKey, childNodeType, initialState }
     });
     // Triggers
-
-    (<GenericNodeTypeMap>nodeTypeMap)[childNodeType]!.nodeTypeVectorDescription && await createVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[childNodeType]!)
-
-    return Ok(node)
+    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[childNodeType]!);
+    return Ok(convertIntegersToNumbers(node))
 })

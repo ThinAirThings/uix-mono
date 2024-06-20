@@ -15,8 +15,8 @@ export const UserNodeDefinition = defineNodeType('User', z.object({
     profileImageUrl: z.string().optional(),
 }))
     .defineUniqueIndexes(['email'])
-    .defineSetRelationship(EducationNodeDefinition)
-    .defineSetRelationship(WorkExperienceNodeDefinition)
+    .defineNodeSetRelationship(EducationNodeDefinition)
+    .defineNodeSetRelationship(WorkExperienceNodeDefinition)
     .defineUniqueRelationship(ProfileNodeDefinition)
     .defineUniqueRelationship(WorkPreferenceNodeDefinition)
 

@@ -3,6 +3,7 @@ import { neo4jAction } from "../clients/neo4j";
 import { AnyNodeTypeMap, NodeSetParentTypes, NodeShape, NodeSetChildNodeTypes } from "../types/NodeType";
 import { Ok } from "../types/Result";
 import { NodeKey } from "../types/NodeKey";
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers";
 
 
 
@@ -28,5 +29,5 @@ export const getChildNodeSetFactory = <
     `, {
         parentNodeId: parentNodeKey.nodeId,
     });
-    return Ok(result.records.map(record => record.get('childNode').properties))
+    return Ok(result.records.map(record => convertIntegersToNumbers(record.get('childNode').properties)))
 })

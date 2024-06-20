@@ -5,7 +5,7 @@ import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
 
 
 
-export const updateVectorNode = async (
+export const upsertPropertyVector = async (
     neo4jDriver: Driver,
     openaiClient: OpenAI,
     propertyVectorKey: string,
@@ -21,18 +21,19 @@ export const updateVectorNode = async (
     }).then(res => res.data[0].embedding)
     // Update Node
     console.log("Updating", propertyVectorKey, propertyKey)
-    const updatedNode = await neo4jDriver.executeQuery<EagerResult<{
-        node: Node<Integer, GenericNodeShape>
+    const vectorNode = await neo4jDriver.executeQuery<EagerResult<{
+        vectorNode: Node<Integer, GenericNodeShape>
     }>>(/*cypher*/`
-        MERGE (node:${nodeShape.nodeType}Vector {nodeId: $nodeId})
+        MATCH (node:${nodeShape.nodeType} {nodeId: $nodeId})
+        MERGE (node)<-[:VECTOR_TO]-(vectorNode:${nodeShape.nodeType}Vector {nodeId: $nodeId})
         ON CREATE 
-            SET node.${propertyVectorKey} = $embedding
+            SET vectorNode.${propertyVectorKey} = $embedding
         ON MATCH 
-            SET node.${propertyVectorKey} = $embedding
-        RETURN node
+            SET vectorNode.${propertyVectorKey} = $embedding
+        RETURN vectorNode
     `, {
         nodeId: nodeShape.nodeId,
         embedding
-    }).then(res => res.records[0].get('node').properties)
+    }).then(res => res.records[0].get('vectorNode').properties)
     return Ok(true)
 }

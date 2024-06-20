@@ -1,13 +1,14 @@
 
 
 import { Driver, EagerResult, error, Integer, Node } from "neo4j-driver"
-import { AnyNodeShape, AnyNodeTypeMap, GenericNodeShape, GenericNodeType, NodeShape, NodeState } from "../types/NodeType"
+import { AnyNodeTypeMap, GenericNodeType, NodeShape, NodeState } from "../types/NodeType"
 import { neo4jAction } from "../clients/neo4j"
-import { UixErr, Ok, UixErrCode } from "../types/Result"
+import { UixErr, Ok, UixErrSubtype } from "../types/Result"
 import OpenAI from "openai"
-import { updateVectorNode } from "../triggers/updateVectorNode"
 import { openAIAction } from "../clients/openai"
 import { NodeKey } from "../types/NodeKey"
+import { upsertVectorNode } from "../triggers/upsertVectorNode"
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers"
 
 
 /**
@@ -37,33 +38,26 @@ export const updateNodeFactory = <
         node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
     }>>(/*cypher*/`
         MATCH (node:${nodeKey.nodeType} {nodeId: $nodeId})
-        SET node += $state
+        SET node += $state,
+            node.updatedAt = timestamp()
         RETURN node
     `, {
         nodeId: nodeKey.nodeId,
         state: {
             ...strippedNodeState,
-            updatedAt: new Date().toISOString(),
         }
     }).then(res => res.records[0]?.get('node').properties)
     if (!node) return UixErr({
-        code: UixErrCode.UPDATE_NODE_FAILED,
+        subtype: UixErrSubtype.UPDATE_NODE_FAILED,
         message: `Failed to update node of type ${nodeKey.nodeType} with id ${nodeKey.nodeId}`,
         data: {
             nodeKey,
             inputState
         }
-    })
+    });
     // Run Triggers
     // NOTE: You should check what actually changes using immer here. You can probably have neo return the prevNode and currentNode
-    await Promise.all(
-        nodeDefinition.propertyVectors.map(async propertyVectorKey => await updateVectorNode(
-            neo4jDriver,
-            openaiClient,
-            propertyVectorKey,
-            node as AnyNodeShape
-        ))
-    )
+    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[nodeKey.nodeType]!);
     // const triggers = nodeTypeMap[nodeKey.nodeType]!.triggerMap.get('onUpdate').forEach(trigger => trigger(nodeKey, node))
-    return Ok(node)
+    return Ok(convertIntegersToNumbers(node))
 }))

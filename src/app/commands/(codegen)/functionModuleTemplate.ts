@@ -16,7 +16,8 @@ import {
     getAllOfNodeTypeFactory,
     getChildNodeSetFactory,
     getUniqueChildNodeFactory,
-    getNodeByIndexFactory
+    getNodeByIndexFactory,
+    NodeKey
 } from '@thinairthings/uix'
 import neo4j from 'neo4j-driver'
 import OpenAI from 'openai'
@@ -28,6 +29,7 @@ const driver = neo4j.driver(
 const openaiClient = new OpenAI({
     apiKey: uixConfig.openaiConfig.apiKey
 })
+
 export const createNode = createNodeFactory(driver, openaiClient, uixConfig.graph.nodeTypeMap)
 export const updateNode = updateNodeFactory(driver, openaiClient, uixConfig.graph.nodeTypeMap)
 export const deleteNode = deleteNodeFactory(driver, uixConfig.graph.nodeTypeMap)
@@ -39,5 +41,7 @@ export const getUniqueChildNode = getUniqueChildNodeFactory(driver, uixConfig.gr
 export const getNodeByIndex = getNodeByIndexFactory(driver, uixConfig.graph.nodeTypeMap)
 
 export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
+
+${config.graph.nodeTypeMap['Root'] ? /*ts*/`export const rootNodeKey: NodeKey<ConfiguredNodeTypeMap, 'Root'> = {nodeType: 'Root', nodeId: '0'}` : ''}
 
 `}

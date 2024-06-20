@@ -1,8 +1,9 @@
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver";
-import { AnyNodeType, AnyNodeTypeMap, NodeShape, VectorNodeShape } from "../types/NodeType";
+import { AnyNodeTypeMap, VectorNodeShape } from "../types/NodeType";
 import { neo4jAction } from "../clients/neo4j";
-import { Ok, UixErr, UixErrCode } from "../types/Result";
+import { Ok, UixErr, UixErrSubtype } from "../types/Result";
 import { NodeKey, TypeFromVectorType, VectorKeys } from "../types/NodeKey";
+import { convertIntegersToNumbers } from "../utilities/convertIntegersToNumbers";
 
 
 
@@ -25,9 +26,10 @@ export const getVectorNodeByKeyFactory = <
         RETURN node   
     `, { nodeId: nodeKey.nodeId }).then(res => res.records[0]?.get('node')?.properties)
     if (!node) return UixErr({
-        code: UixErrCode.GET_NODE_BY_KEY_FAILED,
-        message: `Failed to find node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`
+        subtype: UixErrSubtype.GET_NODE_BY_KEY_FAILED,
+        message: `Failed to find vector node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
+        data: { nodeKey }
     })
 
-    return Ok(node)
+    return Ok(convertIntegersToNumbers(node))
 })

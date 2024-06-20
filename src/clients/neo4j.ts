@@ -14,10 +14,21 @@ export const createNeo4jClient = (config: {
     options
 )
 
+
+
 export const Neo4jErr = (
     error: Neo4jError,
-    message: string = error.message
-) => Err('Neo4jErr', message, error)
+) => Err({
+    type: 'Neo4jErr',
+    subtype: Neo4jErrorSubtype.UNKNOWN,
+    message: error.message,
+    data: JSON.parse(JSON.stringify(error))
+})
+
+export enum Neo4jErrorSubtype {
+    UNKNOWN = 'UNKNOWN',
+}
+
 export const neo4jAction = <
     Input extends any[],
     T,
@@ -29,7 +40,7 @@ export const neo4jAction = <
 ): Promise<
     Result<T,
         | PrevErrType
-        | ErrType<'Neo4jErr', Neo4jError>
+        | ErrType<'Neo4jErr', Neo4jErrorSubtype.UNKNOWN, Neo4jError>
     >
 > => {
         try {

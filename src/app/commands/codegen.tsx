@@ -11,7 +11,7 @@ import path from 'path'
 import { functionModuleTemplate } from './(codegen)/functionModuleTemplate';
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
-import { UixErr, UixErrCode } from '../../types/Result';
+import { UixErr, UixErrSubtype } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
 import { queryOptionsTemplate } from './(codegen)/queryOptionsTemplate';
 
@@ -47,8 +47,9 @@ const Codegen: FC<{
                 return config
             },
             catchOp: (error: Error) => UixErr({
-                code: UixErrCode.UIX_CONFIG_NOT_FOUND,
-                message: `Uix config not found: ${error.message}`
+                subtype: UixErrSubtype.UIX_CONFIG_NOT_FOUND,
+                message: `Uix config not found: ${error.message}`,
+                data: { pathToConfig: options.pathToConfig }
             }),
             render: {
                 Success: ({ data }) => <Text>✅ Uix config found @ {data.pathToConfig}</Text>,
@@ -75,8 +76,9 @@ const Codegen: FC<{
                 return true
             },
             catchOp: (error: Error) => UixErr({
-                code: UixErrCode.CODE_GENERATION_FAILED,
-                message: `Code generation failed: ${error.message}`
+                subtype: UixErrSubtype.CODE_GENERATION_FAILED,
+                message: `Code generation failed: ${error.message}`,
+                data: { error }
             }),
             render: {
                 Success: ({ dependencies: [uixConfig] }) => <Text>✅ Code Generated @{uixConfig.outdir}: Fully-typed operations</Text>,

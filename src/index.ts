@@ -20,4 +20,5 @@ export * from './fns/getChildNodeSetFactory'
 export * from './fns/getUniqueChildNodeFactory'
 export * from './fns/getNodeByIndexFactory'
 
-// Types
+// Components
+export * from './components/UixProvider'

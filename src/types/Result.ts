@@ -21,12 +21,13 @@ export type Result<T, E extends AnyErrType> = {
 export const tryCatch = async <
     T,
     ErrorType extends string,
-    ErrorInfo extends Record<string, any>,
+    ErrorSubtype extends string,
+    ErrorInfo extends Record<string, any> | undefined = undefined,
 >(opts: {
     try: () => Promise<T> | T,
-    catch: (error: any) => Result<never, ErrType<ErrorType, ErrorInfo>>,
+    catch: (error: any) => Result<never, ErrType<ErrorType, ErrorSubtype, ErrorInfo>>,
     finally?: () => void
-}): Promise<Result<T, ErrType<ErrorType, ErrorInfo>>> => {
+}): Promise<Result<T, ErrType<ErrorType, ErrorSubtype, ErrorInfo>>> => {
     try {
         return Ok(await opts.try())
     } catch (error) {
@@ -46,14 +47,16 @@ export const Ok = <T>(data: T): Result<T, never> => ({
 })
 
 
-export type AnyErrType = ErrType<any, any>
+export type AnyErrType = ErrType<any, any, any>
 export type ErrType<
-    T extends string,
-    E extends Record<string, any>
+    Type extends string,
+    Subtype extends string,
+    Data extends Record<string, any> | undefined = undefined,
 > = {
-    type: T
+    type: Type
+    subtype: Subtype
     message: string
-    data: E
+    data: Data
 }
 
 //  ___         
@@ -63,20 +66,48 @@ export type ErrType<
 
 export const Err = <
     Type extends string,
-    Data extends Record<string, any>
->(type: Type, message: string, data: Data): Result<never, ErrType<Type, Data>> => {
+    Subtype extends string,
+    Data extends Record<string, any> | undefined = undefined,
+>({
+    type,
+    subtype,
+    message,
+    data
+}: {
+    type: Type,
+    subtype: Subtype,
+    message: string,
+    data: Data
+}): Result<never, ErrType<Type, Subtype, Data>> => {
     console.error({ type, ...data })
     return {
         data: null,
         error: {
             type,
+            subtype,
             message,
-            data: data
+            data
         }
     }
 }
-
-export enum UixErrCode {
+export const UixErr = <
+    Subtype extends UixErrSubtype,
+    Data extends Record<string, any> | undefined = undefined,
+>({
+    subtype,
+    message,
+    data
+}: {
+    subtype: Subtype
+    message: string
+    data?: Data
+}) => Err({
+    type: 'UixErr',
+    subtype,
+    message,
+    data: data
+})
+export enum UixErrSubtype {
     // Application Errors
     UIX_CONFIG_NOT_FOUND = 'UIX_CONFIG_NOT_FOUND',
     CODE_GENERATION_FAILED = 'CODE_GENERATION_FAILED',
@@ -94,22 +125,9 @@ export enum UixErrCode {
     GET_NODE_BY_INDEX_FAILED = 'GET_NODE_BY_INDEX_FAILED',
     GET_UNIQUE_CHILD_NODE_FAILED = 'GET_UNIQUE_CHILD_NODE_FAILED',
 
+
 }
-export const UixErr = <
-    Code extends UixErrCode,
-    Data extends Record<string, any> | undefined = undefined,
->({
-    message,
-    code,
-    data
-}: {
-    message: string
-    code: Code
-    data?: Data
-}) => Err('UixErr', message, {
-    code,
-    data
-})
+
 
 export class QueryError<
     ErrType extends AnyErrType
@@ -125,5 +143,4 @@ export class QueryError<
     }
 }
 
-export const TestErr = (error: Error) => Err('TestErr', 'Error while testing', error)
 

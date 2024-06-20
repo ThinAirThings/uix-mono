@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { GenericNodeShape, GenericNodeType } from "../types/NodeType"
+import { AnyNodeShape, GenericNodeShape, GenericNodeType } from "../types/NodeType"
 import { Driver, EagerResult, Integer, Node } from "neo4j-driver"
 import { Ok } from "../types/Result"
 import { openAIAction } from "../clients/openai"
@@ -7,10 +7,10 @@ import { neo4jAction } from "../clients/neo4j"
 
 
 
-export const createNodeTypeSummary = async (
-    openaiClient: OpenAI,
+export const upsertNodeTypeSummary = async (
     neo4jDriver: Driver,
-    nodeShape: GenericNodeShape,
+    openaiClient: OpenAI,
+    nodeShape: AnyNodeShape,
     nodeDefinition: GenericNodeType
 ) => {
     // Try/catch this because you're not going to handle it with application logic.

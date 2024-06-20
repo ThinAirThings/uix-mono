@@ -1,5 +1,6 @@
 import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType } from "zod";
 import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType.js";
+import { Integer } from "neo4j-driver";
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___
 // | |_| |  _| | | |  _| || |   | || || | '_ \/ -_|_-<
@@ -9,7 +10,7 @@ import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } 
 export type AnyNodeType = NodeType<any, any, any, any, any, any>
 export type GenericNodeType = NodeType<
     Capitalize<string>,
-    ZodObject<{}>,
+    AnyZodObject,
     ['nodeId'],
     [],
     GenericRelationshipTypeSet,
@@ -31,8 +32,17 @@ export type GenericNodeShape = NodeShape<GenericNodeType>
 export type NodeShape<T extends AnyNodeType> = NodeState<T> & {
     nodeId: string
     nodeType: T['type']
-    createdAt: string
-    updatedAt: string
+    createdAt: number
+    updatedAt: number
+}
+
+export type GenericNeo4jNodeShape = Neo4jNodeShape<GenericNodeType>
+export type AnyNeo4jNodeShape = Neo4jNodeShape<AnyNodeType>
+export type Neo4jNodeShape<T extends AnyNodeType> = NodeState<T> & {
+    nodeId: string
+    nodeType: T['type']
+    createdAt: Integer
+    updatedAt: Integer
 }
 export type VectorNodeShape<T extends AnyNodeType> = ({
     [K in keyof TypeOf<T['stateSchema']> as K extends T['propertyVectors'][number]
@@ -62,14 +72,6 @@ export type UniqueParentTypes<NodeTypeMap extends AnyNodeTypeMap> = {
     : Type
 }[keyof NodeTypeMap]
 
-// export type NodeSetChildNodeTypes<
-//     NodeTypeMap extends AnyNodeTypeMap,
-//     ParentNodeType extends keyof NodeTypeMap
-// > = (NodeTypeMap[ParentNodeType]['relationshipTypeSet'][number] & { relationshipClass: 'Set' }) extends RelationshipType<
-//     any, any, any, infer ToNodeType, any
-// >
-//     ? ToNodeType['type']
-//     : never
 
 export type NodeSetChildNodeTypes<
     NodeTypeMap extends AnyNodeTypeMap,
@@ -195,7 +197,7 @@ export class NodeType<
             this.nodeTypeVectorDescription
         );
     }
-    defineSetRelationship<
+    defineNodeSetRelationship<
         ToNodeType extends AnyNodeType
     >(
         toNodeType: ToNodeType,
@@ -261,6 +263,8 @@ export const defineNodeType = <
     stateSchema: StateSchema
 ) => new NodeType(type, stateSchema);
 
+
+export const defineRootNodeType = () => defineNodeType('Root', z.object({}));
 
 export const defineUserNodeType = <
     StateSchema extends ZodObject<any>
