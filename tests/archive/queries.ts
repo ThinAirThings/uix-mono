@@ -10,7 +10,7 @@ import {
     getNodeByIndex
 } from '../uix/generated/functionModule'
 import { UniqueChildNodeTypes, UniqueParentTypes, NodeKey, NodeShape, NodeSetParentTypes, NodeSetChildNodeTypes, AnyResult, ParentOfNodeSetTypes, AnyRelationshipTypeSet, GenericRelationshipType, AnyRelationshipType, VectorKeys } from '@thinairthings/uix'
-import uixConfig from '/home/aircraft/create/Hirebird/hirebird.v.2/hb.monorepo/packages/uix/tests/uix/uix.config'
+import uixConfig from '../uix/uix.config.js'
 // Unique Child Query
 export const UniqueChildQuery = <
     ParentNodeType extends UniqueParentTypes<ConfiguredNodeTypeMap>,
