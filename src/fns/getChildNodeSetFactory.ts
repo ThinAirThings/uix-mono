@@ -13,23 +13,21 @@ export const getChildNodeSetFactory = <
 >(
     neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
-) => neo4jAction(
-    // 'getChildNodeSet', 
-    async <
-        ParentNodeType extends NodeSetParentTypes<NodeTypeMap>,
-        ChildNodeType extends NodeSetChildNodeTypes<NodeTypeMap, ParentNodeType>,
-    >(
-        parentNodeKey: NodeKey<NodeTypeMap, ParentNodeType>,
-        childNodeType: ChildNodeType
-    ) => {
-        console.log("Getting child nodes of type", childNodeType, "for node of type", parentNodeKey.nodeType, "with id", parentNodeKey.nodeId)
-        const result = await neo4jDriver.executeQuery<EagerResult<{
-            childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType]>>
-        }>>(/*cypher*/`
+) => neo4jAction(async <
+    ParentNodeType extends NodeSetParentTypes<NodeTypeMap>,
+    ChildNodeType extends NodeSetChildNodeTypes<NodeTypeMap, ParentNodeType>,
+>(
+    parentNodeKey: NodeKey<NodeTypeMap, ParentNodeType>,
+    childNodeType: ChildNodeType
+) => {
+    console.log("Getting child nodes of type", childNodeType, "for node of type", parentNodeKey.nodeType, "with id", parentNodeKey.nodeId)
+    const result = await neo4jDriver.executeQuery<EagerResult<{
+        childNode: Node<Integer, NodeShape<NodeTypeMap[ChildNodeType]>>
+    }>>(/*cypher*/`
         MATCH (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeId})<-[:CHILD_TO]-(childNode:${childNodeType as string}) 
         RETURN childNode
     `, {
-            parentNodeId: parentNodeKey.nodeId,
-        });
-        return Ok(result.records.map(record => convertIntegersToNumbers(record.get('childNode').properties)))
-    })
+        parentNodeId: parentNodeKey.nodeId,
+    });
+    return Ok(result.records.map(record => convertIntegersToNumbers(record.get('childNode').properties)))
+})

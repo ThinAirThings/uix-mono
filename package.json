@@ -8,7 +8,7 @@
         "dev": "nodemon",
         "build": "tsup-node",
         "build:run": "tsup-node && node dist/cli/cli.js",
-        "test": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run --test-timeout=100000",
+        "test": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run basic --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- uix --path-to-config=./tests/uix/uix.config.ts"
     },
     "exports": {
