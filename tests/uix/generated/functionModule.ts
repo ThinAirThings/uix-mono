@@ -1,7 +1,7 @@
 
 'use server'
 // Start of File
-import uixConfig from '/home/lucasamberg/uix-mono/tests/uix/uix.config'
+import uixConfig from '../uix.config'
 import {
     createNodeFactory, 
     updateNodeFactory, 
