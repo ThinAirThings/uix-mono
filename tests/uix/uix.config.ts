@@ -5,6 +5,7 @@ import { NullNodeDefinition } from './nodeDefinitions/NullNodeDefinition'
 import { ProfileNodeDefinition } from './nodeDefinitions/ProfileNodeDefinition'
 import { WorkExperienceNodeDefinition } from './nodeDefinitions/WorkExperienceNodeDefinition'
 import { WorkPreferenceNodeDefinition } from './nodeDefinitions/WorkPreferenceNodeDefinition'
+import { DummyNodeDefinition } from './nodeDefinitions/DummyNodeDefinition'
 import { NEO4J_PASSWORD_LOCAL, NEO4J_URI_LOCAL, NEO4J_USERNAME_LOCAL, OPENAI_API_KEY } from './env'
 
 export default defineConfig({
@@ -15,7 +16,8 @@ export default defineConfig({
         NullNodeDefinition,
         ProfileNodeDefinition,
         WorkExperienceNodeDefinition,
-        WorkPreferenceNodeDefinition
+        WorkPreferenceNodeDefinition,
+        DummyNodeDefinition
     ],
     outdir: 'tests/uix/generated',
     neo4jConfig: {

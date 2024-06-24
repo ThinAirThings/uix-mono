@@ -29,6 +29,9 @@ export const getUniqueChildNodeFactory = <
             SET childNode = $defaultChildParams
         RETURN childNode
     `, {
+        // MATCH (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeId})
+        // MATCH (parentNode)<-[:CHILD_TO]-(childNode:${childNodeType as string})
+        // return childNode
         parentNodeId: parentNodeKey.nodeId,
         defaultChildParams: {
             nodeId: uuid(),

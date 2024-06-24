@@ -1,4 +1,4 @@
-import { uixConfig } from "/home/aircraft/create/Hirebird/hirebird.v.2/hb.monorepo/packages/uix/tests/uix/uix.config";
+import uixConfig from "./tests/uix/uix.config.js";
 import { createNodeFactory, updateNodeFactory, deleteNodeFactory, getNodeByKeyFactory } from "@thinairthings/uix";
 import neo4j from "neo4j-driver";
 import OpenAI from "openai";

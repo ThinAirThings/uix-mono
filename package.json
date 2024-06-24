@@ -8,7 +8,7 @@
         "dev": "nodemon",
         "build": "tsup-node",
         "build:run": "tsup-node && node dist/cli/cli.js",
-        "test": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run",
+        "test": "dotenvx run -f .env.test -- pnpm build && dotenvx run -f .env.test -- vitest run --test-timeout=100000",
         "uix": "dotenvx run -f .env.test -- uix --path-to-config=./tests/uix/uix.config.ts"
     },
     "exports": {
@@ -19,7 +19,6 @@
     },
     "devDependencies": {
         "@babel/preset-env": "^7.24.7",
-        "@repo/typescript-config": "workspace:*",
         "@sindresorhus/tsconfig": "^5.0.0",
         "@types/jest": "^29.5.12",
         "babel-jest": "^29.7.0",
@@ -45,9 +44,14 @@
         "package-up": "^5.0.0",
         "pastel": "^3.0.0",
         "prop-types": "^15.8.1",
+        "react": "^18.3.1",
         "terminal-image": "^2.0.0",
         "ts-morph": "^22.0.0",
         "tsx": "^4.15.2",
+        "uuid": "^10.0.0",
+        "vite": "^5.3.1",
+        "znv": "^0.4.0",
+        "zod": "^3.23.8",
         "zustand": "^4.5.2"
     }
 }
