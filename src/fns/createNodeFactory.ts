@@ -17,7 +17,6 @@ export type GenericCreateNodeAction = Action<
     Record<string, any>,
     AnyErrType
 >
-
 /**
  * Factory for creating an action to create a node in the database
  * @param neo4jDriver The neo4j driver to use
@@ -30,29 +29,31 @@ export const createNodeFactory = <
     neo4jDriver: Driver,
     openaiClient: OpenAI,
     nodeTypeMap: NodeTypeMap,
-) => neo4jAction(async <
-    ParentOfNodeSetType extends ParentOfNodeSetTypes<NodeTypeMap>,
-    SetNodeType extends SetNodeTypes<NodeTypeMap, ParentOfNodeSetType>,
-    InitialState extends TypeOf<NodeTypeMap[SetNodeType]['stateSchema']>
->(
-    parentNodeKey: NodeKey<NodeTypeMap, ParentOfNodeSetType>,
-    childNodeType: SetNodeType,
-    initialState: InitialState,
-    nodeId?: string
-) => {
-    // Check Schema
-    const newNodeStructure = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema'].extend({
-        nodeId: z.string(),
-        nodeType: z.string()
-    }).parse({
-        ...initialState,
-        nodeId: nodeId ?? uuid(),
-        nodeType: childNodeType
-    })
-    console.log("Creating", parentNodeKey, childNodeType, newNodeStructure)
-    const node = await neo4jDriver.executeQuery<EagerResult<{
-        childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>
-    }>>(/* cypher */ `
+) => neo4jAction(
+    // 'createNode', 
+    async <
+        ParentOfNodeSetType extends ParentOfNodeSetTypes<NodeTypeMap>,
+        SetNodeType extends SetNodeTypes<NodeTypeMap, ParentOfNodeSetType>,
+        InitialState extends TypeOf<NodeTypeMap[SetNodeType]['stateSchema']>
+    >(
+        parentNodeKeys: NodeKey<NodeTypeMap, ParentOfNodeSetType>[],
+        childNodeType: SetNodeType,
+        initialState: InitialState,
+        nodeId?: string
+    ) => {
+        // Check Schema
+        const newNodeStructure = (<GenericNodeType>nodeTypeMap[childNodeType]!)['stateSchema'].extend({
+            nodeId: z.string(),
+            nodeType: z.string()
+        }).parse({
+            ...initialState,
+            nodeId: nodeId ?? uuid(),
+            nodeType: childNodeType
+        })
+        console.log("Creating", parentNodeKeys, childNodeType, newNodeStructure)
+        const node = await neo4jDriver.executeQuery<EagerResult<{
+            childNode: Node<Integer, NodeShape<NodeTypeMap[SetNodeType]>>
+        }>>(/* cypher */ `
         MERGE (childNode:Node:${childNodeType} {nodeId: $childNode.nodeId})
         ON CREATE 
             SET childNode += $childNode,
@@ -63,19 +64,20 @@ export const createNodeFactory = <
             SET childNode += $childNode,
                 childNode.updatedAt = timestamp()
         WITH childNode
-        MATCH (parentNode:${parentNodeKey.nodeType as string} {nodeId: $parentNodeKey.nodeId})
+        UNWIND $parentNodeKeys AS parentNodeKey
+        MATCH (parentNode:Node {nodeId: parentNodeKey.nodeId})
         MERGE (childNode)-[:CHILD_TO]->(parentNode)
         RETURN childNode
     `, {
-        parentNodeKey,
-        childNode: newNodeStructure
-    }).then(res => res.records[0]?.get('childNode').properties)
-    if (!node) return UixErr({
-        subtype: UixErrSubtype.CREATE_NODE_FAILED,
-        message: `Failed to create node of type ${childNodeType} with parent ${parentNodeKey.nodeType as string} ${parentNodeKey.nodeId}`,
-        data: { parentNodeKey, childNodeType, initialState }
-    });
-    // Triggers
-    await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[childNodeType]!);
-    return Ok(convertIntegersToNumbers(node))
-})
+            parentNodeKeys,
+            childNode: newNodeStructure
+        }).then(res => res.records[0]?.get('childNode').properties)
+        if (!node) return UixErr({
+            subtype: UixErrSubtype.CREATE_NODE_FAILED,
+            message: `Failed to create node of type ${childNodeType} with parent keys ${parentNodeKeys}`,
+            data: { parentNodeKeys, childNodeType, initialState }
+        });
+        // Triggers
+        await upsertVectorNode(neo4jDriver, openaiClient, node, nodeTypeMap[childNodeType]!);
+        return Ok(convertIntegersToNumbers(node))
+    })

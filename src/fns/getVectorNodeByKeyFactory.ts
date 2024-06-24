@@ -14,22 +14,24 @@ export const getVectorNodeByKeyFactory = <
 >(
     neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
-) => neo4jAction(async <
-    NodeType extends VectorKeys<NodeTypeMap>,
->(
-    nodeKey: NodeKey<NodeTypeMap, NodeType>
-) => {
-    const node = await neo4jDriver.executeQuery<EagerResult<{
-        node: Node<Integer, VectorNodeShape<NodeTypeMap[TypeFromVectorType<NodeTypeMap, NodeType>]>>
-    }>>(/*cypher*/`
+) => neo4jAction(
+    // 'getVectorNodeByKey', 
+    async <
+        NodeType extends VectorKeys<NodeTypeMap>,
+    >(
+        nodeKey: NodeKey<NodeTypeMap, NodeType>
+    ) => {
+        const node = await neo4jDriver.executeQuery<EagerResult<{
+            node: Node<Integer, VectorNodeShape<NodeTypeMap[TypeFromVectorType<NodeTypeMap, NodeType>]>>
+        }>>(/*cypher*/`
         MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId}) 
         RETURN node   
     `, { nodeId: nodeKey.nodeId }).then(res => res.records[0]?.get('node')?.properties)
-    if (!node) return UixErr({
-        subtype: UixErrSubtype.GET_NODE_BY_KEY_FAILED,
-        message: `Failed to find vector node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
-        data: { nodeKey }
-    })
+        if (!node) return UixErr({
+            subtype: UixErrSubtype.GET_NODE_BY_KEY_FAILED,
+            message: `Failed to find vector node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
+            data: { nodeKey }
+        })
 
-    return Ok(convertIntegersToNumbers(node))
-})
+        return Ok(convertIntegersToNumbers(node))
+    })

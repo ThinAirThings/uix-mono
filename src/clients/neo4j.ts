@@ -15,14 +15,17 @@ export const createNeo4jClient = (config: {
 )
 
 
-
 export const Neo4jErr = (
+    // caller: string,
     error: Neo4jError,
 ) => Err({
     type: 'Neo4jErr',
     subtype: Neo4jErrorSubtype.UNKNOWN,
     message: error.message,
-    data: JSON.parse(JSON.stringify(error))
+    data: JSON.parse(JSON.stringify({
+        // caller,
+        ...error
+    }))
 })
 
 export enum Neo4jErrorSubtype {
@@ -34,6 +37,7 @@ export const neo4jAction = <
     T,
     PrevErrType extends AnyErrType,
 >(
+    // fnName: string,
     fn: Action<Input, T, PrevErrType>
 ) => async (
     ...args: Input
@@ -43,10 +47,14 @@ export const neo4jAction = <
         | ErrType<'Neo4jErr', Neo4jErrorSubtype.UNKNOWN, Neo4jError>
     >
 > => {
+        // console.log("Running", fnName, "with args", args)
         try {
             return await fn(...args)
         } catch (e) {
             if (!(e instanceof Neo4jError)) throw e
-            return Neo4jErr(e)
+            return Neo4jErr(
+                // fnName,
+                e
+            )
         }
     }

@@ -9,7 +9,7 @@ import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByInd
 const assertDefined = <T>(obj: T | null | undefined): T => {
     expect(obj).toBeDefined();
     return obj as T;
-  }
+}
 
 
 // test('Integration test', async () => {
@@ -136,16 +136,16 @@ const assertDefined = <T>(obj: T | null | undefined): T => {
 describe('Node', () => {
     describe('is created normally when', () => {
         it('one node is created', async () => {
-        const userNode = await createNode({ nodeType: 'Null', nodeId: '0' }, 'User', {
-            email: 'email@email.com',
-            firstName: 'First',
-            lastName: 'Last',
-            userType: 'Candidate',
-            completedOnboardingV2: false,
-            phoneNumber: '1234567890',
-            profileImageUrl: 'https://www.google.com'
-        })
-        expect(userNode).toBeTruthy()
+            const userNode = await createNode({ nodeType: 'Null', nodeId: '0' }, 'User', {
+                email: 'email@email.com',
+                firstName: 'First',
+                lastName: 'Last',
+                userType: 'Candidate',
+                completedOnboardingV2: false,
+                phoneNumber: '1234567890',
+                profileImageUrl: 'https://www.google.com'
+            })
+            expect(userNode).toBeTruthy()
         })
         it('two nodes are created at once', async () => {
             const userNode = await createNode({ nodeType: 'Null', nodeId: '0' }, 'User', {
@@ -159,7 +159,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            const profileNode = await getUniqueChildNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
         })
@@ -175,10 +175,10 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            const profileNode = await getUniqueChildNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
-            for (let i = 0; i < 3; i ++) {
+            for (let i = 0; i < 3; i++) {
                 const educationNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Education', {
                     school: 'RPI',
                     graduationYear: 2022,
@@ -204,15 +204,16 @@ describe('Node', () => {
         it('invalid data is passed', async () => {
             expect(async () => {
                 const thing = await createNode({ nodeType: 'Null', nodeId: '0' }, 'User', {
-                email: false,
-                firstName: 'First',
-                lastName: 'Last',
-                userType: 'Candidate',
-                completedOnboardingV2: false,
-                phoneNumber: '1234567890',
-                profileImageUrl: 'https://www.google.com'
-            })}
-        ).rejects.toThrow()
+                    email: false,
+                    firstName: 'First',
+                    lastName: 'Last',
+                    userType: 'Candidate',
+                    completedOnboardingV2: false,
+                    phoneNumber: '1234567890',
+                    profileImageUrl: 'https://www.google.com'
+                })
+            }
+            ).rejects.toThrow()
         })
         it('a node with duplicate identifiers is made', async () => {
             const email = uuid()
@@ -251,8 +252,8 @@ describe('Node', () => {
             profileImageUrl: 'https://www.google.com'
         })
         it('one node is updated with valid data', async () => {
-        
-            const updates = await updateNode({nodeType: 'User', nodeId: nodeToUpdate.data.nodeId}, {
+
+            const updates = await updateNode({ nodeType: 'User', nodeId: nodeToUpdate.data.nodeId }, {
                 email: `${uuid()}@gmail.com`,
                 firstName: 'Last',
                 lastName: 'First',
@@ -264,7 +265,7 @@ describe('Node', () => {
 
             expect(updates).toBeTruthy()
             expect(updates.error).toBeFalsy()
-        
+
         })
         it('one node is updated with data from another node', async () => {
             const userNode = await createNode({ nodeType: 'Null', nodeId: '0' }, 'User', {
@@ -278,7 +279,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const updates = await updateNode({nodeType: 'User', nodeId: nodeToUpdate.data.nodeId}, {
+            const updates = await updateNode({ nodeType: 'User', nodeId: nodeToUpdate.data.nodeId }, {
                 email: `${uuid()}@localTest.com`,
                 firstName: 'First',
                 lastName: userNode.data.userType,
@@ -292,7 +293,7 @@ describe('Node', () => {
             expect(updates.error).toBeFalsy()
         })
         it('only some fields are updated', async () => {
-            const updates = await updateNode({nodeType: 'User', nodeId: nodeToUpdate.data.nodeId}, {
+            const updates = await updateNode({ nodeType: 'User', nodeId: nodeToUpdate.data.nodeId }, {
                 lastName: 'hello'
             });
             expect(updates).toBeTruthy()
@@ -310,8 +311,8 @@ describe('Node', () => {
             profileImageUrl: 'https://www.google.com'
         })
         it('invalid data is passed', async () => {
-        
-            expect( async () => await updateNode({nodeType: 'User', nodeId: nodeToUpdate.data.nodeId}, {
+
+            expect(async () => await updateNode({ nodeType: 'User', nodeId: nodeToUpdate.data.nodeId }, {
                 email: `${uuid()}@gmail.com`,
                 firstName: false,
                 lastName: 'First',
@@ -323,10 +324,10 @@ describe('Node', () => {
 
             expect(nodeToUpdate).toBeTruthy()
             expect(nodeToUpdate.error).toBeFalsy()
-        
+
         })
         it('the node does not exist', async () => {
-            const updates = await updateNode({nodeType: 'User', nodeId: uuid()}, {
+            const updates = await updateNode({ nodeType: 'User', nodeId: uuid() }, {
                 firstName: 'hey'
             })
 
@@ -347,7 +348,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeFalsy()
         })
@@ -363,10 +364,10 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            const profileNode = await getUniqueChildNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
-            const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeFalsy()
         })
@@ -393,10 +394,10 @@ describe('Node', () => {
             })
             expect(userNode2).toBeTruthy()
             expect(userNode2.error).toBeFalsy()
-            const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeFalsy()
-            const deleted2 = await deleteNode({nodeType: 'User', nodeId: userNode2.data.nodeId})
+            const deleted2 = await deleteNode({ nodeType: 'User', nodeId: userNode2.data.nodeId })
             expect(deleted2).toBeTruthy()
             expect(deleted2.error).toBeFalsy()
         })
@@ -404,7 +405,7 @@ describe('Node', () => {
     })
     describe('is not deleted when', async () => {
         it('the node does not exist', async () => {
-            const deleted = await deleteNode({nodeType: 'User', nodeId: uuid()})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: uuid() })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeTruthy()
         })
@@ -445,10 +446,10 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            const profileNode = await getUniqueChildNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
-            for (let i = 0; i < 3; i ++) {
+            for (let i = 0; i < 3; i++) {
                 const educationNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Education', {
                     school: 'RPI',
                     graduationYear: 2022,
@@ -468,12 +469,12 @@ describe('Node', () => {
                 expect(workExperienceNode).toBeTruthy()
                 expect(workExperienceNode.error).toBeFalsy()
             }
-            const fetchedEducation = await getChildNodeSet({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Education')
+            const fetchedEducation = await getChildNodeSet({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Education')
             const fetchedEducationData = assertDefined(fetchedEducation.data)
             expect(fetchedEducation).toBeTruthy()
             expect(fetchedEducation.error).toBeFalsy()
             expect(fetchedEducationData.length).toEqual(3)
-            const fetchedWork = await getChildNodeSet({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Education')
+            const fetchedWork = await getChildNodeSet({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Education')
             const fetchedWorkData = assertDefined(fetchedWork.data)
             expect(fetchedWork).toBeTruthy()
             expect(fetchedWork.error).toBeFalsy()
@@ -492,10 +493,10 @@ describe('Node', () => {
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
             const aboutMe = 'I am a person'
-            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            const profileNode = await getUniqueChildNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
-            const profileUpdate = await updateNode({nodeType: 'Profile', nodeId: profileNode.data.nodeId}, {
+            const profileUpdate = await updateNode({ nodeType: 'Profile', nodeId: profileNode.data.nodeId }, {
                 aboutMe: aboutMe,
                 city: 'New York',
                 skills: ['skill1', 'skill2', 'skill3'],
@@ -503,7 +504,7 @@ describe('Node', () => {
             })
             expect(profileUpdate).toBeTruthy()
             expect(profileUpdate.error).toBeFalsy()
-            const fetched = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            const fetched = await getUniqueChildNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile')
             console.log(fetched)
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
@@ -525,7 +526,7 @@ describe('Node', () => {
             expect(fetched.error).toBeFalsy()
             expect(assertDefined(fetched.data).length).toEqual(amountOfNodes)
             dummyNodeIDs.forEach(async (id) => {
-                const deleted = await deleteNode({nodeType: 'Dummy', nodeId: id})
+                const deleted = await deleteNode({ nodeType: 'Dummy', nodeId: id })
                 expect(deleted).toBeTruthy()
                 expect(deleted.error).toBeFalsy()
             })
@@ -561,7 +562,7 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
         })
@@ -577,12 +578,12 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
             const educationNodeIds = []
             const workExperienceNodeIds = []
-            for (let i = 0; i < 3; i ++) {
+            for (let i = 0; i < 3; i++) {
                 const educationNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Education', {
                     school: 'RPI',
                     graduationYear: 2022,
@@ -605,12 +606,12 @@ describe('VectorNode', () => {
                 workExperienceNodeIds.push(workExperienceNode.data.nodeId)
             }
             educationNodeIds.forEach(async (id) => {
-                const fetched = await getVectorNodeByKey({nodeType: 'Education', nodeId: id})
+                const fetched = await getVectorNodeByKey({ nodeType: 'Education', nodeId: id })
                 expect(fetched).toBeTruthy()
                 expect(fetched.error).toBeFalsy()
             })
             workExperienceNodeIds.forEach(async (id) => {
-                const fetched = await getVectorNodeByKey({nodeType: 'WorkExperience', nodeId: id})
+                const fetched = await getVectorNodeByKey({ nodeType: 'WorkExperience', nodeId: id })
                 expect(fetched).toBeTruthy()
                 expect(fetched.error).toBeFalsy()
             })
@@ -618,7 +619,7 @@ describe('VectorNode', () => {
     })
     describe('is not fetched normally when', async () => {
         it('the node does not exist', async () => {
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: uuid()})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: uuid() })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeTruthy()
         })
@@ -636,10 +637,10 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
-            const updates = await updateNode({nodeType: 'User', nodeId: userNode.data.nodeId}, {
+            const updates = await updateNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, {
                 email: `${uuid()}@gmail.com`,
                 firstName: 'Last',
                 lastName: 'First',
@@ -664,10 +665,10 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
-            const updates = await updateNode({nodeType: 'User', nodeId: userNode.data.nodeId}, {
+            const updates = await updateNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, {
                 email: `${uuid()}@localTest.com`,
                 firstName: 'First',
                 lastName: userNode.data.userType,
@@ -692,16 +693,16 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
-            const updates = await updateNode({nodeType: 'User', nodeId: fetched.data.nodeId}, {
+            const updates = await updateNode({ nodeType: 'User', nodeId: fetched.data.nodeId }, {
                 lastName: 'hello'
             });
             expect(updates).toBeTruthy()
             expect(updates.error).toBeFalsy()
             expect(updates.data).not.toEqual(fetched.data)
-        })  
+        })
     })
     describe('is deleted normally when', async () => {
         it('one node is deleted', async () => {
@@ -716,13 +717,13 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
-            const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeFalsy()
-            const fetchedAfter = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetchedAfter = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetchedAfter).toBeTruthy()
             expect(fetchedAfter.error).toBeTruthy()
         })
@@ -738,7 +739,7 @@ describe('VectorNode', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
             const profileNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile', {
@@ -749,10 +750,10 @@ describe('VectorNode', () => {
             })
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
-            const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeFalsy()
-            const fetchedAfter = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetchedAfter = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetchedAfter).toBeTruthy()
             expect(fetchedAfter.error).toBeTruthy()
         })
@@ -779,22 +780,22 @@ describe('VectorNode', () => {
             })
             expect(userNode2).toBeTruthy()
             expect(userNode2.error).toBeFalsy()
-            const fetched = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetched = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetched).toBeTruthy()
             expect(fetched.error).toBeFalsy()
-            const fetched2 = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode2.data.nodeId})
+            const fetched2 = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode2.data.nodeId })
             expect(fetched2).toBeTruthy()
             expect(fetched2.error).toBeFalsy()
-            const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const deleted = await deleteNode({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(deleted).toBeTruthy()
             expect(deleted.error).toBeFalsy()
-            const deleted2 = await deleteNode({nodeType: 'User', nodeId: userNode2.data.nodeId})
+            const deleted2 = await deleteNode({ nodeType: 'User', nodeId: userNode2.data.nodeId })
             expect(deleted2).toBeTruthy()
             expect(deleted2.error).toBeFalsy()
-            const fetchedAfter = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode.data.nodeId})
+            const fetchedAfter = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode.data.nodeId })
             expect(fetchedAfter).toBeTruthy()
             expect(fetchedAfter.error).toBeTruthy()
-            const fetchedAfter2 = await getVectorNodeByKey({nodeType: 'User', nodeId: userNode2.data.nodeId})
+            const fetchedAfter2 = await getVectorNodeByKey({ nodeType: 'User', nodeId: userNode2.data.nodeId })
             expect(fetchedAfter2).toBeTruthy()
             expect(fetchedAfter2.error).toBeTruthy()
         })

@@ -14,17 +14,19 @@ export const getAllOfNodeTypeFactory = <
 >(
     neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap,
-) => neo4jAction(async <
-    NodeType extends keyof NodeTypeMap,
->(
-    nodeType: NodeType
-) => {
-    console.log("Getting all nodes of type", nodeType)
-    const nodes = await neo4jDriver.executeQuery<EagerResult<{
-        node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
-    }>>(/*cypher*/`
+) => neo4jAction(
+    // 'getAllOfNodeType', 
+    async <
+        NodeType extends keyof NodeTypeMap,
+    >(
+        nodeType: NodeType
+    ) => {
+        console.log("Getting all nodes of type", nodeType)
+        const nodes = await neo4jDriver.executeQuery<EagerResult<{
+            node: Node<Integer, NodeShape<NodeTypeMap[NodeType]>>
+        }>>(/*cypher*/`
         MATCH (node:${nodeType as string}) 
         RETURN node   
     `).then(res => res.records.map(record => convertIntegersToNumbers(record.get('node').properties)))
-    return Ok(nodes)
-})
+        return Ok(nodes)
+    })

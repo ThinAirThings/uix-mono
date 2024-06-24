@@ -18,26 +18,28 @@ export const deleteNodeFactory = <
 >(
     neo4jDriver: Driver,
     nodeTypeMap: NodeTypeMap
-) => neo4jAction(async (
-    nodeKey: NodeKey<NodeTypeMap, keyof NodeTypeMap>
-) => {
-    console.log("Deleting", nodeKey)
-    const result = await neo4jDriver.executeQuery<EagerResult<{
-        parentNodeId: string,
-        parentNodeType: string
-    }>>(/*cypher*/ `
+) => neo4jAction(
+    // 'deleteNode', 
+    async (
+        nodeKey: NodeKey<NodeTypeMap, keyof NodeTypeMap>
+    ) => {
+        console.log("Deleting", nodeKey)
+        const result = await neo4jDriver.executeQuery<EagerResult<{
+            parentNodeId: string,
+            parentNodeType: string
+        }>>(/*cypher*/ `
         MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(children)
         DETACH DELETE node, children
     `, {
-        ...nodeKey
+            ...nodeKey
+        })
+        if (!result.summary.counters.containsUpdates()) return UixErr({
+            subtype: UixErrSubtype.DELETE_NODE_FAILED,
+            message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
+            data: {
+                nodeKey
+            }
+        })
+        return Ok(true)
     })
-    if (!result.summary.counters.containsUpdates()) return UixErr({
-        subtype: UixErrSubtype.DELETE_NODE_FAILED,
-        message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
-        data: {
-            nodeKey
-        }
-    })
-    return Ok(true)
-})
 
