@@ -460,12 +460,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile', {
-                aboutMe: 'I am a person',
-                city: 'New York',
-                skills: ['skill1', 'skill2', 'skill3'],
-                state: 'NY',
-            })
+            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
             for (let i = 0; i < 3; i ++) {
