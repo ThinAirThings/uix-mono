@@ -159,12 +159,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile', {
-                aboutMe: 'I am a person',
-                city: 'New York',
-                skills: ['skill1', 'skill2', 'skill3'],
-                state: 'NY',
-            })
+            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
         })
@@ -180,12 +175,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile', {
-                aboutMe: 'I am a person',
-                city: 'New York',
-                skills: ['skill1', 'skill2', 'skill3'],
-                state: 'NY',
-            })
+            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
             for (let i = 0; i < 3; i ++) {
@@ -373,12 +363,7 @@ describe('Node', () => {
             })
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
-            const profileNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile', {
-                aboutMe: 'I am a person',
-                city: 'New York',
-                skills: ['skill1', 'skill2', 'skill3'],
-                state: 'NY',
-            })
+            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
             expect(profileNode).toBeTruthy()
             expect(profileNode.error).toBeFalsy()
             const deleted = await deleteNode({nodeType: 'User', nodeId: userNode.data.nodeId})
@@ -507,12 +492,17 @@ describe('Node', () => {
             expect(userNode).toBeTruthy()
             expect(userNode.error).toBeFalsy()
             const aboutMe = 'I am a person'
-            const profileNode = await createNode({ nodeType: 'User', nodeId: userNode.data.nodeId }, 'Profile', {
+            const profileNode = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
+            expect(profileNode).toBeTruthy()
+            expect(profileNode.error).toBeFalsy()
+            const profileUpdate = await updateNode({nodeType: 'Profile', nodeId: profileNode.data.nodeId}, {
                 aboutMe: aboutMe,
                 city: 'New York',
                 skills: ['skill1', 'skill2', 'skill3'],
                 state: 'NY',
             })
+            expect(profileUpdate).toBeTruthy()
+            expect(profileUpdate.error).toBeFalsy()
             const fetched = await getUniqueChildNode({nodeType: 'User', nodeId: userNode.data.nodeId}, 'Profile')
             console.log(fetched)
             expect(fetched).toBeTruthy()
