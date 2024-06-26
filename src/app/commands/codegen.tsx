@@ -1,6 +1,6 @@
 
-import React, { FC } from 'react';
-import { Text, Box, Newline } from 'ink';
+import React, { FC, useEffect } from 'react';
+import { Text, Box, Newline, useStdin } from 'ink';
 import { z, TypeOf } from 'zod';
 import { Loading } from '../(components)/Loading';
 import { CommandEnvironment } from '../(components)/CommandEnvironment';
