@@ -8,13 +8,18 @@ import { GenericUixConfig } from '../../config/defineConfig';
 import { require } from 'tsx/cjs/api'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
-import { functionModuleTemplate } from './(codegen)/functionModuleTemplate';
 import { SeedNeo4j } from './(seedNeo4j)/SeedNeo4j';
 import { applicationStore, useApplicationStore } from '../(stores)/applicationStore';
 import { UixErr, UixErrSubtype } from '../../types/Result';
 import { useOperation } from '../(hooks)/useOperation';
-import { queryOptionsTemplate } from './(codegen)/queryOptionsTemplate';
-
+import { functionModuleTemplate } from '../../templates/functionModuleTemplate';
+import { queryOptionsTemplate } from '../../templates/queryOptions/queryOptionsTemplate';
+import { staticObjectsTemplate } from '../../templates/staticObjectsTemplate';
+import { useUniqueChildTemplate } from '../../templates/hooks/useUniqueChildTemplate';
+import { useNodeKeyTemplate } from '../../templates/hooks/useNodeKeyTemplate';
+import { useNodeSetTemplate } from '../../templates/hooks/useNodeSetTemplate';
+import { useNodeIndexTemplate } from '../../templates/hooks/useNodeIndexTemplate';
+import { useNodeTypeTemplate } from '../../templates/hooks/useNodeTypeTemplate';
 
 export const options = z.object({
     pathToConfig: z.string().transform(relativePath => {
@@ -72,6 +77,30 @@ const Codegen: FC<{
                 await writeFile(
                     path.join(pathToFiles, 'queryOptions.ts'),
                     queryOptionsTemplate()
+                )
+                await writeFile(
+                    path.join(pathToFiles, 'staticObjects.ts'),
+                    staticObjectsTemplate(uixConfig)
+                )
+                await writeFile(
+                    path.join(pathToFiles, 'useUniqueChild.ts'),
+                    useUniqueChildTemplate()
+                )
+                await writeFile(
+                    path.join(pathToFiles, 'useNodeKey.ts'),
+                    useNodeKeyTemplate()
+                )
+                await writeFile(
+                    path.join(pathToFiles, 'useNodeSet.ts'),
+                    useNodeSetTemplate()
+                )
+                await writeFile(
+                    path.join(pathToFiles, 'useNodeIndex.ts'),
+                    useNodeIndexTemplate()
+                )
+                await writeFile(
+                    path.join(pathToFiles, 'useNodeType.ts'),
+                    useNodeTypeTemplate()
                 )
                 return true
             },

@@ -1,5 +1,5 @@
-import { AnyNodeTypeMap } from "./NodeType.js"
-import { AnyRelationshipTypeSet } from "./RelationshipType.js"
+import { AnyNodeTypeMap } from "./NodeType"
+import { AnyRelationshipTypeSet } from "./RelationshipType"
 
 
 export type ParentOfNodeSetTypes<

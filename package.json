@@ -34,6 +34,7 @@
     "dependencies": {
         "@tanstack/react-query": "^5.32.0",
         "file-type": "^19.0.0",
+        "immer": "^10.1.1",
         "ink-big-text": "^2.0.0",
         "ink-gradient": "^3.0.0",
         "ink-image": "^2.0.0",

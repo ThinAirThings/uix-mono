@@ -48,6 +48,7 @@ export default defineConfig([
         entry: {
             "lib/index": "src/index.ts"
         },
+        sourcemap: true,
         clean: true,
         shims: true,
         dts: true,

@@ -1,5 +1,5 @@
-import { GenericNodeTypeSet, NodeTypeMap } from './NodeType.js';
-import { AnyNodeTypeSet } from './NodeType.js';
+import { GenericNodeTypeSet, NodeTypeMap } from './NodeType';
+import { AnyNodeTypeSet } from './NodeType';
 
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___

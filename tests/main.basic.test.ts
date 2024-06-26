@@ -1,8 +1,9 @@
 import { execSync } from 'child_process'
 import { v4 as uuid } from 'uuid'
 import { expect, test } from 'vitest'
-import { Err, tryCatch } from '../src/types/Result.js'
-import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule.js'
+import { Err, tryCatch, UixErr, UixErrSubtype } from '../src/types/Result'
+import { createNode, deleteNode, getAllOfNodeType, getChildNodeSet, getNodeByIndex, getUniqueChildNode, getVectorNodeByKey, updateNode } from './uix/generated/functionModule'
+import { useUniqueChild } from './uix/generated/useUniqueChild'
 
 test('Integration test', async () => {
     const { data: uixData, error: uixError } = await tryCatch({
@@ -14,7 +15,6 @@ test('Integration test', async () => {
             data: { e }
         })
     })
-    // console.log("HERE!")
     // Create Node
     const { data: userNode, error: createUserNodeError } = await createNode([{ nodeType: 'Null', nodeId: '0' }], 'User', {
         email: `${uuid()}@localTest.com`,
@@ -23,8 +23,15 @@ test('Integration test', async () => {
         userType: 'Unspecified',
         completedOnboardingV2: false,
     })
+    const data = useUniqueChild({
+        parentNodeKey: { nodeType: 'User', nodeId: '1' },
+        childNodeType: 'Profile'
+    })
     if (createUserNodeError) {
-        console.error(createUserNodeError)
+        console.error(createUserNodeError.data)
+        if (createUserNodeError.subtype === UixErrSubtype.CREATE_NODE_FAILED) {
+            console.error(createUserNodeError.data)
+        }
         expect(createUserNodeError).toBeFalsy()
         return
     }

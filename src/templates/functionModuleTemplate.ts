@@ -1,4 +1,4 @@
-import { GenericUixConfig } from "../../../config/defineConfig";
+import { GenericUixConfig } from "../config/defineConfig";
 
 
 
@@ -39,9 +39,5 @@ export const getAllOfNodeType = getAllOfNodeTypeFactory(driver, uixConfig.graph.
 export const getChildNodeSet = getChildNodeSetFactory(driver, uixConfig.graph.nodeTypeMap)
 export const getUniqueChildNode = getUniqueChildNodeFactory(driver, uixConfig.graph.nodeTypeMap)
 export const getNodeByIndex = getNodeByIndexFactory(driver, uixConfig.graph.nodeTypeMap)
-
-export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
-
-${config.graph.nodeTypeMap['Root'] ? /*ts*/`export const rootNodeKey: NodeKey<ConfiguredNodeTypeMap, 'Root'> = {nodeType: 'Root', nodeId: '0'}` : ''}
 
 `}

@@ -1,4 +1,4 @@
-import { AnyErrType, Result } from "./Result.js";
+import { AnyErrType, Result } from "./Result";
 
 
 

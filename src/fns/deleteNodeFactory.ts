@@ -22,22 +22,26 @@ export const deleteNodeFactory = <
     nodeKey: NodeKey<NodeTypeMap, keyof NodeTypeMap>
 ) => {
     console.log("Deleting", nodeKey)
-    const result = await neo4jDriver.executeQuery<EagerResult<{
-        parentNodeId: string,
-        parentNodeType: string
+    const parentNodeKeys = await neo4jDriver.executeQuery<EagerResult<{
+        parentNodeKey: {
+            parentNodeId: string,
+            parentNodeType: string
+        }
     }>>(/*cypher*/ `
-        MATCH (node:${nodeKey.nodeType as string} {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(children)
-        DETACH DELETE node, children
+        MATCH (parentNode:${nodeKey.nodeType as string} {nodeId: $nodeId})<-[:CHILD_TO|UNIQUE_TO|VECTOR_TO*0..]-(childNode)
+        WITH parentNode, childNode
+        DETACH DELETE childNode
+        RETURN parentNode.nodeId as parentNodeId, parentNode.nodeType as parentNodeType
     `, {
         ...nodeKey
-    })
-    if (!result.summary.counters.containsUpdates()) return UixErr({
+    }).then(result => result.records.map(record => record.get('parentNodeKey')))
+    if (!parentNodeKeys.length) return UixErr({
         subtype: UixErrSubtype.DELETE_NODE_FAILED,
         message: `Failed to delete node of type ${nodeKey.nodeType as string} with id ${nodeKey.nodeId}`,
         data: {
             nodeKey
         }
     })
-    return Ok(true)
+    return Ok(parentNodeKeys)
 })
 

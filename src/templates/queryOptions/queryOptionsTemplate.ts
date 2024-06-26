@@ -2,16 +2,19 @@
 
 
 export const queryOptionsTemplate = () => /*ts*/`
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query'
 import {
     getUniqueChildNode,
     getChildNodeSet,
     getAllOfNodeType,
     getVectorNodeByKey,
     getNodeByKey,
-    ConfiguredNodeTypeMap,
     getNodeByIndex
 } from './functionModule'
+
+import {
+    ConfiguredNodeTypeMap
+} from './staticObjects'
 
 import { 
     UniqueChildNodeTypes, 
@@ -27,15 +30,19 @@ import {
 } from '@thinairthings/uix'
 
 // Unique Child Query
-export const UniqueChildQuery = <
+export const UniqueChildQueryOptions = <
     ParentNodeType extends UniqueParentTypes<ConfiguredNodeTypeMap>,
     ChildNodeType extends UniqueChildNodeTypes<ConfiguredNodeTypeMap, ParentNodeType>,
     Data = NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>,
->(
+>({
+    parentNodeKey,
+    childNodeType,
+    select
+}:{
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
     childNodeType: ChildNodeType,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>) => Data
-) => queryOptions({
+}) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,
     queryFn: async ({ queryKey: [parentNodeType, parentNodeId, childNodeType] }) => {
         const result = await getUniqueChildNode({ nodeType: parentNodeType, nodeId: parentNodeId }, childNodeType)
@@ -45,15 +52,19 @@ export const UniqueChildQuery = <
     select
 })
 
-export const NodeSetQuery = <
+export const NodeSetQueryOptions = <
     ParentNodeType extends NodeSetParentTypes<ConfiguredNodeTypeMap>,
     ChildNodeType extends NodeSetChildNodeTypes<ConfiguredNodeTypeMap, ParentNodeType>,
     Data = NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>[],
->(
+>({
+    parentNodeKey,
+    childNodeType,
+    select
+}:{
     parentNodeKey: NodeKey<ConfiguredNodeTypeMap, ParentNodeType>,
     childNodeType: ChildNodeType,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[ChildNodeType]>[]) => Data
-) => queryOptions({
+}) => queryOptions({
     queryKey: [parentNodeKey.nodeType, parentNodeKey.nodeId, childNodeType] as const,
     queryFn: async ({ queryKey: [parentNodeType, parentNodeId, childNodeType] }) => {
         const result = await getChildNodeSet({ nodeType: parentNodeType, nodeId: parentNodeId }, childNodeType)
@@ -63,29 +74,42 @@ export const NodeSetQuery = <
     select
 })
 
-export const AllOfNodeTypeQuery = <
+export const NodeTypeQueryOptions = <
     NodeType extends keyof ConfiguredNodeTypeMap,
     Data = NodeShape<ConfiguredNodeTypeMap[NodeType]>[],
->(
+>({
+    nodeType,
+    options,
+    select
+}:{
     nodeType: NodeType,
+    options?: {
+        limit?: number
+        page?: number
+        orderBy?: 'updatedAt' | 'createdAt';
+        orderDirection?: 'ASC' | 'DESC';
+    }
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>[]) => Data
-) => queryOptions({
+}) => queryOptions({
     queryKey: [nodeType] as const,
     queryFn: async ({ queryKey: [nodeType] }) => {
-        const result = await getAllOfNodeType(nodeType)
+        const result = await getAllOfNodeType(nodeType, options)
         if (result.error) throw new QueryError(result.error)
         return result.data
     },
     select
 })
 
-export const NodeByKeyQuery = <
+export const NodeKeyQueryOptions = <
     NodeType extends keyof ConfiguredNodeTypeMap,
     Data = NodeShape<ConfiguredNodeTypeMap[NodeType]>,
->(
+>({
+    nodeKey,
+    select
+}:{
     nodeKey: NodeKey<ConfiguredNodeTypeMap, NodeType>,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>) => Data
-) => queryOptions({
+}) => queryOptions({
     queryKey: [nodeKey.nodeType, nodeKey.nodeId] as const,
     queryFn: async ({ queryKey: [nodeType, nodeId] }) => {
         const result = await getNodeByKey({ nodeType, nodeId })
@@ -95,13 +119,16 @@ export const NodeByKeyQuery = <
     select
 })
 
-export const VectorNodeByKeyQuery = <
+export const VectorNodeKeyQueryOptions = <
     NodeType extends VectorKeys<ConfiguredNodeTypeMap>,
     Data = VectorNodeShape<ConfiguredNodeTypeMap[TypeFromVectorType<ConfiguredNodeTypeMap, NodeType>]>,
->(
+>({
+    nodeKey,
+    select
+}:{
     nodeKey: NodeKey<ConfiguredNodeTypeMap, NodeType>,
     select?: (data: VectorNodeShape<ConfiguredNodeTypeMap[TypeFromVectorType<ConfiguredNodeTypeMap, NodeType>]>) => Data
-) => queryOptions({
+}) => queryOptions({
     queryKey: [nodeKey.nodeType, nodeKey.nodeId] as const,
     queryFn: async ({ queryKey: [nodeType, nodeId] }) => {
         const result = await getVectorNodeByKey({ nodeType, nodeId })
@@ -111,16 +138,21 @@ export const VectorNodeByKeyQuery = <
     select
 })
 
-export const NodeByIndexQuery = <
+export const NodeIndexQueryOptions = <
     NodeType extends keyof ConfiguredNodeTypeMap,
     UniqueIndex extends ConfiguredNodeTypeMap[NodeType]['uniqueIndexes'][number],
     Data = NodeShape<ConfiguredNodeTypeMap[NodeType]>,
->(
+>({
+    nodeType,
+    indexKey,
+    indexValue,
+    select
+}:{
     nodeType: NodeType,
     indexKey: UniqueIndex,
     indexValue: string,
     select?: (data: NodeShape<ConfiguredNodeTypeMap[NodeType]>) => Data
-) => queryOptions({
+}) => queryOptions({
     queryKey: [nodeType, indexKey, indexValue] as const,
     queryFn: async ({ queryKey: [nodeType, indexKey, indexValue] }) => {
         const result = await getNodeByIndex(nodeType, indexKey, indexValue)

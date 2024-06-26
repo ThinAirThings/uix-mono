@@ -1,5 +1,5 @@
 import { ZodObject } from "zod"
-import { AnyNodeType, GenericNodeType } from "./NodeType.js"
+import { AnyNodeType, GenericNodeType } from "./NodeType"
 
 
 //  _   _ _   _ _ _ _          _____                  

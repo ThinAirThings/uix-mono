@@ -1,5 +1,5 @@
 import { TypeOf, ZodObject, ZodOptional, ZodTypeAny, z, ZodString, ZodRawShape, ZodLiteral, AnyZodObject, ZodDefault, ZodType } from "zod";
-import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType.js";
+import { AnyRelationshipTypeSet, GenericRelationshipTypeSet, RelationshipType } from "./RelationshipType";
 import { Integer } from "neo4j-driver";
 //  _   _ _   _ _ _ _          _____                  
 // | | | | |_(_) (_) |_ _  _  |_   _|  _ _ __  ___ ___

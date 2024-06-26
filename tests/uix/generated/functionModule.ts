@@ -35,7 +35,3 @@ export const getChildNodeSet = getChildNodeSetFactory(driver, uixConfig.graph.no
 export const getUniqueChildNode = getUniqueChildNodeFactory(driver, uixConfig.graph.nodeTypeMap)
 export const getNodeByIndex = getNodeByIndexFactory(driver, uixConfig.graph.nodeTypeMap)
 
-export type ConfiguredNodeTypeMap = typeof uixConfig.graph.nodeTypeMap
-
-
-

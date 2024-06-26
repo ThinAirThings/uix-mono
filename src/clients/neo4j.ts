@@ -16,14 +16,12 @@ export const createNeo4jClient = (config: {
 
 
 export const Neo4jErr = (
-    // caller: string,
     error: Neo4jError,
 ) => Err({
     type: 'Neo4jErr',
     subtype: Neo4jErrorSubtype.UNKNOWN,
     message: error.message,
     data: JSON.parse(JSON.stringify({
-        // caller,
         ...error
     }))
 })

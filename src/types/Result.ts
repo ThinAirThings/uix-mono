@@ -77,16 +77,17 @@ export const Err = <
     type: Type,
     subtype: Subtype,
     message: string,
-    data: Data
+    data?: Data
 }): Result<never, ErrType<Type, Subtype, Data>> => {
     console.error({ type, ...data })
+
     return {
         data: null,
         error: {
             type,
             subtype,
             message,
-            data
+            data: data as Data
         }
     }
 }
@@ -105,7 +106,7 @@ export const UixErr = <
     type: 'UixErr',
     subtype,
     message,
-    data: data
+    data: data as Data extends Record<string, any> ? Data : undefined
 })
 export enum UixErrSubtype {
     // Application Errors
@@ -128,7 +129,7 @@ export enum UixErrSubtype {
 
 }
 
-
+export type AnyQueryError = QueryError<any>
 export class QueryError<
     ErrType extends AnyErrType
 > extends Error {

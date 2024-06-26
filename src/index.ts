@@ -9,6 +9,7 @@ export * from './types/RelationshipType'
 export * from './types/NodeKey'
 export * from './types/types'
 export * from './types/Result'
+export * from './types/GraphType'
 // Function
 export * from './fns/createNodeFactory'
 export * from './fns/updateNodeFactory'
